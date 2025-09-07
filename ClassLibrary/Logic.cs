@@ -1,7 +1,19 @@
 ﻿namespace ClassLibrary
 {
-    public class Logic
+    public class Logic : PropertyChangedNotification
     {
+        public Ship GetShip()
+        {
+            return new Ship();
+        }
+
+
+
+
+
+
+
+
 
     }
 }
