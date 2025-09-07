@@ -8,6 +8,13 @@ namespace ClassLibrary
 {
     public class Ship : PropertyChangedNotification
     {
+        public Ship(string name, sbyte hp, FlagColor color) 
+        { 
+            Name = name;
+            Hp = hp;
+            Color = color;
+        }
+
         private string name;
         private sbyte hp;
         private FlagColor color;
