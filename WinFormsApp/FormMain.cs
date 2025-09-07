@@ -5,6 +5,18 @@ namespace WinFormsApp
         public FormMain()
         {
             InitializeComponent();
+            formGame = new FormGame();
+            isFormGameOpened = false;
         }
+
+        private FormGame formGame;
+        private bool isFormGameOpened;
+
+
+
+
+
+
+
     }
 }
