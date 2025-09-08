@@ -31,6 +31,10 @@ namespace ClassLibrary
         }
 
        
+        public void SetFlagColor(string Color)
+        {
+
+        }
 
 
 

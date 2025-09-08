@@ -79,7 +79,6 @@
             ListViewMain.Size = new Size(510, 426);
             ListViewMain.TabIndex = 3;
             ListViewMain.UseCompatibleStateImageBehavior = false;
-            ListViewMain.SelectedIndexChanged += ListViewMain_SelectedIndexChanged;
             // 
             // ButtonStartGame
             // 
@@ -89,41 +88,40 @@
             ButtonStartGame.TabIndex = 4;
             ButtonStartGame.Text = "StartGame";
             ButtonStartGame.UseVisualStyleBackColor = true;
+            ButtonStartGame.Click += ButtonStartGame_Click;
             // 
             // TextBoxName
             // 
-            TextBoxName.Location = new Point(950, 149);
+            TextBoxName.Location = new Point(918, 150);
             TextBoxName.Name = "TextBoxName";
-            TextBoxName.Size = new Size(151, 27);
+            TextBoxName.Size = new Size(224, 27);
             TextBoxName.TabIndex = 9;
             // 
             // ComboBoxColor
             // 
             ComboBoxColor.FormattingEnabled = true;
-            ComboBoxColor.Items.AddRange(new object[] { "Red", "Green", "Blue", "Yellow", "Pink", "Black" });
-            ComboBoxColor.Location = new Point(950, 254);
+            ComboBoxColor.Location = new Point(918, 203);
             ComboBoxColor.Name = "ComboBoxColor";
-            ComboBoxColor.Size = new Size(151, 28);
+            ComboBoxColor.Size = new Size(124, 28);
             ComboBoxColor.TabIndex = 8;
-            ComboBoxColor.SelectedIndexChanged += ComboBoxColor_SelectedIndexChanged;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(876, 257);
+            label3.Location = new Point(815, 206);
             label3.Name = "label3";
-            label3.Size = new Size(50, 20);
+            label3.Size = new Size(86, 20);
             label3.TabIndex = 7;
-            label3.Text = "label3";
+            label3.Text = "Цвет флага";
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(876, 149);
+            label2.Location = new Point(815, 153);
             label2.Name = "label2";
-            label2.Size = new Size(50, 20);
+            label2.Size = new Size(77, 20);
             label2.TabIndex = 6;
-            label2.Text = "label2";
+            label2.Text = "Название";
             // 
             // label1
             // 
@@ -151,7 +149,7 @@
             Controls.Add(ButtonDeleteShip);
             Controls.Add(ButtonCreateShip);
             Name = "FormMain";
-            Text = "Form1";
+            Text = "Меню надзора за флотом";
             ResumeLayout(false);
             PerformLayout();
         }

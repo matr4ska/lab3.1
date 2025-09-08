@@ -8,6 +8,7 @@ using System.Drawing.Text;
 using System.Linq;
 using System.Net.Quic;
 using System.Windows.Forms;
+using static System.Windows.Forms.DataFormats;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace WinFormsApp
@@ -17,8 +18,6 @@ namespace WinFormsApp
         public FormMain()
         {
             InitializeComponent();
-            formGame = new FormGame();
-            isFormGameOpened = false;
 
             DataContext = new Logic();
             var logic = (Logic)DataContext;
@@ -30,35 +29,21 @@ namespace WinFormsApp
 
             foreach (var ship in logic.Ships)
             {
-                UpdateShip(ship);
+                var listViewItem = new ListViewItem(new string[] { Convert.ToString(ship.Hp), Convert.ToString(ship.Name), Convert.ToString(ship.Color) });
+                listViewItem.Tag = ship;
+                ListViewMain.Items.Add(listViewItem);          
             }
 
+            ComboBoxColor.DataSource = Enum.GetValues(typeof(FlagColor));
+
+            SetFlagColor(ListViewMain.Items[0], "Green");
+            SetFlagColor(ListViewMain.Items[1], "Red");
+            SetFlagColor(ListViewMain.Items[2], "Blue");
         }
+
+
 
         private FormGame formGame;
-        private bool isFormGameOpened;
-
-        private void UpdateShip(Ship ship)
-        {
-            var logic = (Logic)DataContext;
-
-            var listViewItem = new ListViewItem(new string[] { Convert.ToString(ship.Hp), Convert.ToString(ship.Name), Convert.ToString(ship.Color) });
-            ListViewMain.Items.Add(listViewItem);
-
-            switch (ComboBoxColor.Text)
-            {
-                case "Red": listViewItem.ForeColor = Color.Red; break;
-                case "Green": listViewItem.ForeColor = Color.Green; break;
-                case "Blue": listViewItem.ForeColor = Color.Blue; break;
-                case "Yellow": listViewItem.ForeColor = Color.Yellow; break;
-                case "Pink": listViewItem.ForeColor = Color.Pink; break;
-                case "Black": listViewItem.ForeColor = Color.Black; break;
-
-                default: listViewItem.ForeColor = Color.Black; break;
-            }
-
-            listViewItem.Tag = ship;
-        }
 
 
 
@@ -66,12 +51,18 @@ namespace WinFormsApp
         {
             var logic = (Logic?)DataContext;
 
-            foreach (Ship ship in logic.Ships)
+            if (!string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text != "_No_Color_")
             {
-                Ship ship = new Ship(TextBoxName.Text, 100, ComboBoxColor.SelectedItem);
+                Ship ship = logic.CreateShip(TextBoxName.Text, (FlagColor)ComboBoxColor.SelectedItem);
+
+                var listViewItem = new ListViewItem(new string[] { Convert.ToString(ship.Hp), Convert.ToString(ship.Name), Convert.ToString(ship.Color) });
+                ListViewMain.Items.Add(listViewItem);
+                listViewItem.Tag = ship;
+
+                SetFlagColor(listViewItem, ComboBoxColor.Text);
             }
 
-            UpdateShip(ship);
+            TextBoxName.Text = "";
         }
 
 
@@ -79,46 +70,69 @@ namespace WinFormsApp
         private void ButtonDeleteShip_Click(object sender, EventArgs e)
         {
             var logic = (Logic?)DataContext;
-
-            foreach (ListViewItem ship in ListViewMain.SelectedItems)
+            foreach (ListViewItem selectedItem in ListViewMain.SelectedItems)
             {
-                ListViewMain.Items.Remove(ship);
-                logic.Ships.Remove(ship.Tag as Ship);
+                ListViewMain.Items.Remove(selectedItem);
+                logic.Ships.Remove(selectedItem.Tag as Ship);
             }
         }
+
+
 
         private void ButtonChangeShipStats_Click(object sender, EventArgs e)
         {
-            QuicStreamType
-                quic jdbjg
-                logic = (QuicStreamType)DataContext;
-            var logic = (typeof ship);
-            foreach (Ship ship in logic.Ships)
+            var logic = (Logic?)DataContext;
 
-                AccessibilityNotifyClients accessibilityNotifyClients a;
-            do
-            { unsafe ValueTuple; ;
-                
+            foreach (ListViewItem selectedItem in ListViewMain.SelectedItems)
+            {
+                Ship ship = selectedItem.Tag as Ship;
+
+                if (string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text == "_No_Color_")
+                {
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(TextBoxName.Text) || (!string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text != "_No_Color_"))
+                {
+                    ship.Color = (FlagColor)ComboBoxColor.SelectedItem;
+                    selectedItem.SubItems[2].Text = Convert.ToString(ship.Color);
+
+                    SetFlagColor(selectedItem, ComboBoxColor.Text);
+                }
+
+                if (ComboBoxColor.Text == "_No_Color_" || (!string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text != "_No_Color_"))
+                {
+                    ship.Name = TextBoxName.Text;
+                    selectedItem.SubItems[1].Text = ship.Name;
+                }
             }
-            while (true);
-            PrivateFontCollection privateFontCollection = new PrivateFontCollection(); 
-            FileInfo fileInfo = null;
-            IUtf8SpanParsable utf8SpanParsable = null;
 
-            e e e;
-            UpdateShip(ship);
-
-             
+            TextBoxName.Text = "";
         }
 
-        private void ListViewMain_SelectedIndexChanged(object sender, EventArgs e)
-        {
 
+
+        private void ButtonStartGame_Click(object sender, EventArgs e)
+        {
+            formGame = new FormGame(ListViewMain);
+            formGame.ShowDialog();
         }
 
-        private void ComboBoxColor_SelectedIndexChanged(object sender, EventArgs e)
-        {
 
+
+        public void SetFlagColor(ListViewItem selectedItem, string color)
+        {
+            switch (color)
+            {
+                case "Red": selectedItem.ForeColor = Color.Red; break;
+                case "Green": selectedItem.ForeColor = Color.Green; break;
+                case "Blue": selectedItem.ForeColor = Color.Blue; break;
+                case "Yellow": selectedItem.ForeColor = Color.DarkOrange; break;
+                case "Pink": selectedItem.ForeColor = Color.Magenta; break;
+                case "Black": selectedItem.ForeColor = Color.Black; break;
+
+                case "_No_Color_": break;
+            }
         }
     }
 }
