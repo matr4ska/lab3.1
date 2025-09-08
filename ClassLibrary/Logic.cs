@@ -1,5 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ClassLibrary
 {
@@ -12,6 +17,8 @@ namespace ClassLibrary
             new Ship("ObraDinn", 100, FlagColor.Blue)
         };
 
+        
+
         private int selectedIndex;
         public int SelectedIndex
         {
@@ -22,6 +29,8 @@ namespace ClassLibrary
                 OnPropertyChanged();
             }
         }
+
+       
 
 
 

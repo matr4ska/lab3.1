@@ -48,6 +48,7 @@
             ButtonCreateShip.TabIndex = 0;
             ButtonCreateShip.Text = "CreateShip";
             ButtonCreateShip.UseVisualStyleBackColor = true;
+            ButtonCreateShip.Click += ButtonCreateShip_Click;
             // 
             // ButtonDeleteShip
             // 
@@ -57,6 +58,7 @@
             ButtonDeleteShip.TabIndex = 1;
             ButtonDeleteShip.Text = "DeleteShip";
             ButtonDeleteShip.UseVisualStyleBackColor = true;
+            ButtonDeleteShip.Click += ButtonDeleteShip_Click;
             // 
             // ButtonChangeShipStats
             // 
@@ -66,14 +68,18 @@
             ButtonChangeShipStats.TabIndex = 2;
             ButtonChangeShipStats.Text = "ChangeShipStats";
             ButtonChangeShipStats.UseVisualStyleBackColor = true;
+            ButtonChangeShipStats.Click += ButtonChangeShipStats_Click;
             // 
             // ListViewMain
             // 
+            ListViewMain.FullRowSelect = true;
             ListViewMain.Location = new Point(12, 12);
+            ListViewMain.MultiSelect = false;
             ListViewMain.Name = "ListViewMain";
             ListViewMain.Size = new Size(510, 426);
             ListViewMain.TabIndex = 3;
             ListViewMain.UseCompatibleStateImageBehavior = false;
+            ListViewMain.SelectedIndexChanged += ListViewMain_SelectedIndexChanged;
             // 
             // ButtonStartGame
             // 
@@ -94,10 +100,12 @@
             // ComboBoxColor
             // 
             ComboBoxColor.FormattingEnabled = true;
+            ComboBoxColor.Items.AddRange(new object[] { "Red", "Green", "Blue", "Yellow", "Pink", "Black" });
             ComboBoxColor.Location = new Point(950, 254);
             ComboBoxColor.Name = "ComboBoxColor";
             ComboBoxColor.Size = new Size(151, 28);
             ComboBoxColor.TabIndex = 8;
+            ComboBoxColor.SelectedIndexChanged += ComboBoxColor_SelectedIndexChanged;
             // 
             // label3
             // 
