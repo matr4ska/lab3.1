@@ -32,12 +32,14 @@
             label1 = new Label();
             ButtonAttack = new Button();
             ButtonHeal = new Button();
-            label2 = new Label();
+            labelPlayer = new Label();
             SuspendLayout();
             // 
             // ListViewGame
             // 
+            ListViewGame.FullRowSelect = true;
             ListViewGame.Location = new Point(102, 94);
+            ListViewGame.MultiSelect = false;
             ListViewGame.Name = "ListViewGame";
             ListViewGame.Size = new Size(571, 254);
             ListViewGame.TabIndex = 0;
@@ -46,11 +48,12 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(365, 18);
+            label1.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 204);
+            label1.Location = new Point(266, 24);
             label1.Name = "label1";
-            label1.Size = new Size(50, 20);
+            label1.Size = new Size(255, 31);
             label1.TabIndex = 1;
-            label1.Text = "label1";
+            label1.Text = "Битва пошла поехала";
             // 
             // ButtonAttack
             // 
@@ -72,21 +75,21 @@
             ButtonHeal.UseVisualStyleBackColor = true;
             ButtonHeal.Click += ButtonHeal_Click;
             // 
-            // label2
+            // labelPlayer
             // 
-            label2.AutoSize = true;
-            label2.Location = new Point(365, 55);
-            label2.Name = "label2";
-            label2.Size = new Size(50, 20);
-            label2.TabIndex = 4;
-            label2.Text = "label2";
+            labelPlayer.Location = new Point(266, 55);
+            labelPlayer.Name = "labelPlayer";
+            labelPlayer.Size = new Size(255, 24);
+            labelPlayer.TabIndex = 4;
+            labelPlayer.Text = "label2";
+            labelPlayer.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // FormGame
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(783, 450);
-            Controls.Add(label2);
+            Controls.Add(labelPlayer);
             Controls.Add(ButtonHeal);
             Controls.Add(ButtonAttack);
             Controls.Add(label1);
@@ -103,6 +106,6 @@
         private Label label1;
         private Button ButtonAttack;
         private Button ButtonHeal;
-        private Label label2;
+        private Label labelPlayer;
     }
 }

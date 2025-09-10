@@ -6,57 +6,52 @@ using System.Threading.Tasks;
 
 namespace ClassLibrary
 {
-    public class Ship : PropertyChangedNotification
+    public class Ship
     {
-        public Ship(string name, sbyte hp, FlagColor color) 
+        public Ship(string name, FlagColor flagColor) 
         { 
             Name = name;
-            Hp = hp;
-            Color = color;
+            Hp = 100;
+            FlagColor = flagColor;
+            IsYourTurn = false;
         }
 
+
         private string name;
-        private sbyte hp;
-        private FlagColor color;
+        private short hp;
+        private FlagColor flagColor;
+        private bool isYourTurn;
+        private bool isBeaten;
 
 
         public string Name
         {
             get => name;
-            set  
-            {
-                if (!string.IsNullOrWhiteSpace(value))
-                {
-                    name = value;
-                    OnPropertyChanged();
-                }
-                else
-                    name = string.Empty;   
-            }
+            set => name = value; 
         }
 
-
-        public sbyte Hp
+        public short Hp
         {
             get => hp;
-            set
-            {
-                hp = value; 
-                OnPropertyChanged();
-            }
+            set => hp = value; 
         }
 
-
-        public FlagColor Color
+        public FlagColor FlagColor
         {
-            get => color;
-            set
-            {
-                color = value;
-                OnPropertyChanged();
-            }
+            get => flagColor;
+            set => flagColor = value;
+        }
+
+        public bool IsYourTurn
+        {
+            get => isYourTurn;
+            set => isYourTurn = value;
+        }
+
+        public bool IsBeaten
+        {
+            get => isBeaten;
+            set => isBeaten = value;
         }
     }
-
- 
 }

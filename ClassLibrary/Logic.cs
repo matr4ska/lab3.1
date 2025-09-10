@@ -1,86 +1,117 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace ClassLibrary
 {
-    public class Logic : PropertyChangedNotification
+    public class Logic
     {
-        public ObservableCollection<Ship> Ships { get; set; } = new ObservableCollection<Ship>
+        public List<Ship> Ships { get; set; } = new List<Ship>
         {
-            new Ship("Vista", 100, FlagColor.Green),
-            new Ship("Kingslayer", 100, FlagColor.Red),
-            new Ship("ObraDinn", 100, FlagColor.Blue)
+            new Ship("Vista", FlagColor.Green),
+            new Ship("Kingslayer", FlagColor.Red),
+            new Ship("ObraDinn", FlagColor.Blue)
         };
 
+
+        public Ship CreateShip(string name, object flagColor)
+        {
+            Ship ship = new Ship(name, (FlagColor)flagColor);
+            Ships.Add(ship);
+            return ship;
+        }
+
+
+        public void DeleteShip(object ship) => Ships.Remove((Ship)ship);
+
+
+        public Ship GetShip(object ship) => Ships[Ships.IndexOf((Ship)ship)];
+
+
+        public void ChangeShipAttributes(object ship, string name) => Ships[Ships.IndexOf((Ship)ship)].Name = name;
+
+
+        public void ChangeShipAttributes(object ship, object flagColor) => Ships[Ships.IndexOf((Ship)ship)].FlagColor = (FlagColor)flagColor;
+
+
+        public short AttackShip(object ship)
+        {
+            Ships[Ships.IndexOf((Ship)ship)].Hp -= 20;
+            return Ships[Ships.IndexOf((Ship)ship)].Hp;
+        }
+
+
+        public short HealShip(object ship)
+        {
+            Ships[Ships.IndexOf((Ship)ship)].Hp += 15;
+            return Ships[Ships.IndexOf((Ship)ship)].Hp;
+        }
+
+
+        public Ship PassTheTurn()
+        {
+            var unbeatenShips = (from ship in Ships
+                                 where ship.Hp > 0
+                                 select ship)
+                                 .ToList();
+
+            if (unbeatenShips.Last().IsYourTurn == true)
+            {
+                unbeatenShips.Last().IsYourTurn = false;
+                unbeatenShips[0].IsYourTurn = true;
+                return unbeatenShips[0];
+            }
+
+            foreach (Ship ship in unbeatenShips)
+            {
+                if (ship.IsYourTurn == true)
+                {
+                    ship.IsYourTurn = false;
+                    unbeatenShips[unbeatenShips.IndexOf(ship) + 1].IsYourTurn = true;
+                    return unbeatenShips[unbeatenShips.IndexOf(ship) + 1];
+                }
+            }
+
+            unbeatenShips[0].IsYourTurn = true;
+            return unbeatenShips[0];
+        }
+
+
+        public bool CheckShipBeaten(object ship)
+        {
+            if (Ships[Ships.IndexOf((Ship)ship)].Hp <= 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
+        public bool CheckGameOver()
+        {
+            var unbeatenShips = (from ship in Ships
+                                where ship.Hp > 0
+                                select ship)
+                                .Count();
+
+            if (unbeatenShips == 1)
+                return true;
+
+            return false; 
+        }
+
         
-
-        private int selectedIndex;
-        public int SelectedIndex
+        public void RecoverHP()
         {
-            get => selectedIndex;
-            set
-            {
-                selectedIndex = value;
-                OnPropertyChanged();
-            }
+            foreach (Ship ship in Ships)
+                ship.Hp = 100;
         }
-
-       
-        public void SetFlagColor(string Color)
-        {
-
-        }
-
-
-
-        public Ship CreateShip(string name, FlagColor color)
-        {
-            return new Ship(name, 100, color);
-        }
-
-
-
-        public void DeleteShip()
-        {
-            if (SelectedIndex != -1)
-            {
-                Ship ship = Ships[SelectedIndex];
-                Ships.Remove(ship);
-            }
-            SelectedIndex = -1;
-        }
-
-
-
-        public Ship GetShip()
-        {
-            if (SelectedIndex != -1)
-            {
-                return Ships[SelectedIndex];
-            }
-            SelectedIndex = -1;
-            return null;
-        }
-
-
-
-        public void ChangeShipAttributes(string name, FlagColor color)
-        {
-            if (SelectedIndex != -1)
-            {
-                Ship ship = Ships[SelectedIndex];
-                ship.Name = name;
-                ship.Color = color;
-                Ships[SelectedIndex] = ship;
-            }
-            SelectedIndex = -1;
-        }
-
-
     }
 }

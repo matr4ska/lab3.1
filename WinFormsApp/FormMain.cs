@@ -1,4 +1,3 @@
-using ClassLibrary;
 using Microsoft.VisualBasic.Logging;
 using System;
 using System.Collections;
@@ -10,6 +9,7 @@ using System.Net.Quic;
 using System.Windows.Forms;
 using static System.Windows.Forms.DataFormats;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using ClassLibrary;
 
 namespace WinFormsApp
 {
@@ -18,27 +18,17 @@ namespace WinFormsApp
         public FormMain()
         {
             InitializeComponent();
-
             DataContext = new Logic();
-            var logic = (Logic)DataContext;
+            Logic logic = (Logic)DataContext;
 
             ListViewMain.View = View.Details;
             ListViewMain.Columns.Add("HP", -2);
             ListViewMain.Columns.Add("Name", -2);
             ListViewMain.Columns.Add("Color", -2);
 
-            foreach (var ship in logic.Ships)
-            {
-                var listViewItem = new ListViewItem(new string[] { Convert.ToString(ship.Hp), Convert.ToString(ship.Name), Convert.ToString(ship.Color) });
-                listViewItem.Tag = ship;
-                ListViewMain.Items.Add(listViewItem);          
-            }
+            UpdateViewListMain();
 
             ComboBoxColor.DataSource = Enum.GetValues(typeof(FlagColor));
-
-            SetFlagColor(ListViewMain.Items[0], "Green");
-            SetFlagColor(ListViewMain.Items[1], "Red");
-            SetFlagColor(ListViewMain.Items[2], "Blue");
         }
 
 
@@ -47,33 +37,52 @@ namespace WinFormsApp
 
 
 
+        public void UpdateViewListMain()
+        {
+            Logic logic = (Logic)DataContext;
+
+            ListViewMain.Items.Clear();
+
+            foreach (Ship ship in logic.Ships)
+            {
+                ListViewItem listViewItem = new ListViewItem();
+                listViewItem.Tag = ship;
+                listViewItem.SubItems[0].Text = logic.GetShip(listViewItem.Tag).Hp.ToString();
+                listViewItem.SubItems.Add(logic.GetShip(listViewItem.Tag).Name.ToString());
+                listViewItem.SubItems.Add(logic.GetShip(listViewItem.Tag).FlagColor.ToString());
+
+                SetRowColor(listViewItem, ship.FlagColor.ToString());
+
+                ListViewMain.Items.Add(listViewItem);
+            }
+        }
+
+
+
         private void ButtonCreateShip_Click(object sender, EventArgs e)
         {
-            var logic = (Logic?)DataContext;
+            Logic logic = (Logic)DataContext;
 
             if (!string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text != "_No_Color_")
             {
-                Ship ship = logic.CreateShip(TextBoxName.Text, (FlagColor)ComboBoxColor.SelectedItem);
+                ListViewItem listViewItem = new ListViewItem();
+                listViewItem.Tag = logic.CreateShip(TextBoxName.Text, ComboBoxColor.SelectedItem);
 
-                var listViewItem = new ListViewItem(new string[] { Convert.ToString(ship.Hp), Convert.ToString(ship.Name), Convert.ToString(ship.Color) });
-                ListViewMain.Items.Add(listViewItem);
-                listViewItem.Tag = ship;
-
-                SetFlagColor(listViewItem, ComboBoxColor.Text);
+                TextBoxName.Text = "";
             }
-
-            TextBoxName.Text = "";
+            UpdateViewListMain();
         }
 
 
 
         private void ButtonDeleteShip_Click(object sender, EventArgs e)
         {
-            var logic = (Logic?)DataContext;
+            Logic logic = (Logic)DataContext;
+
             foreach (ListViewItem selectedItem in ListViewMain.SelectedItems)
             {
-                ListViewMain.Items.Remove(selectedItem);
-                logic.Ships.Remove(selectedItem.Tag as Ship);
+                logic.DeleteShip(selectedItem.Tag);
+                UpdateViewListMain();
             }
         }
 
@@ -81,32 +90,27 @@ namespace WinFormsApp
 
         private void ButtonChangeShipStats_Click(object sender, EventArgs e)
         {
-            var logic = (Logic?)DataContext;
+            Logic logic = (Logic)DataContext;
 
             foreach (ListViewItem selectedItem in ListViewMain.SelectedItems)
             {
-                Ship ship = selectedItem.Tag as Ship;
-
                 if (string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text == "_No_Color_")
                 {
                     return;
                 }
 
-                if (string.IsNullOrWhiteSpace(TextBoxName.Text) || (!string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text != "_No_Color_"))
-                {
-                    ship.Color = (FlagColor)ComboBoxColor.SelectedItem;
-                    selectedItem.SubItems[2].Text = Convert.ToString(ship.Color);
-
-                    SetFlagColor(selectedItem, ComboBoxColor.Text);
-                }
-
                 if (ComboBoxColor.Text == "_No_Color_" || (!string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text != "_No_Color_"))
                 {
-                    ship.Name = TextBoxName.Text;
-                    selectedItem.SubItems[1].Text = ship.Name;
+                    logic.ChangeShipAttributes(selectedItem.Tag, TextBoxName.Text);
+                    UpdateViewListMain();
                 }
-            }
 
+                if (string.IsNullOrWhiteSpace(TextBoxName.Text) || (!string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text != "_No_Color_"))
+                {
+                    logic.ChangeShipAttributes(selectedItem.Tag, ComboBoxColor.SelectedItem);
+                    UpdateViewListMain();
+                }       
+            }
             TextBoxName.Text = "";
         }
 
@@ -114,13 +118,17 @@ namespace WinFormsApp
 
         private void ButtonStartGame_Click(object sender, EventArgs e)
         {
-            formGame = new FormGame(ListViewMain);
+            Logic logic = (Logic)DataContext;
+            logic.RecoverHP();
+            UpdateViewListMain();
+            formGame = new FormGame((Logic)DataContext, ListViewMain);
             formGame.ShowDialog();
+            UpdateViewListMain();
         }
 
 
 
-        public void SetFlagColor(ListViewItem selectedItem, string color)
+        public void SetRowColor(ListViewItem selectedItem, string color)
         {
             switch (color)
             {
