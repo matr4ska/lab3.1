@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLibrary
+namespace Model
 {
     public class Ship
     {
@@ -21,7 +21,6 @@ namespace ClassLibrary
         private short hp;
         private FlagColor flagColor;
         private bool isYourTurn;
-        private bool isBeaten;
 
 
         public string Name
@@ -46,12 +45,6 @@ namespace ClassLibrary
         {
             get => isYourTurn;
             set => isYourTurn = value;
-        }
-
-        public bool IsBeaten
-        {
-            get => isBeaten;
-            set => isBeaten = value;
         }
     }
 }

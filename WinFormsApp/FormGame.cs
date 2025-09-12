@@ -1,14 +1,6 @@
 ﻿using ClassLibrary;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using Microsoft.VisualBasic.Logging;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
 
 namespace WinFormsApp
 {
@@ -32,36 +24,36 @@ namespace WinFormsApp
                                          .Clone())
                                          .ToArray());
 
-            for(int i = 0; i < logic.Ships.Count; i++)
-            {
-                ListViewGame.Items[i].Tag = logic.Ships[i];
-            }
-
-            labelPlayer.Text = $"Ход {logic.PassTheTurn().Name}";
+            logic.InitializeShipsInBattleList();
+            ChangePlayerTurn();
         }
 
 
 
+        /// <summary>
+        /// Кнопка для понижения ХП выбранного корабля.
+        /// </summary>
+        /// <param name="sender">Объект, вызвавший событие.</param>
+        /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonAttack_Click(object sender, EventArgs e)
         {
             Logic logic = (Logic)DataContext;
-            short currentHp;
 
             foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
             {
-                labelPlayer.Text = $"Ход {logic.PassTheTurn().Name}";
+                ChangePlayerTurn();
+                selectedItem.SubItems[0].Text = logic.GetAttackedShipHP(selectedItem.Tag).ToString();
 
-                currentHp = logic.AttackShip(selectedItem.Tag);
-                selectedItem.SubItems[0].Text = currentHp.ToString();
-
-                if (logic.CheckShipBeaten(selectedItem.Tag) == true)
+                if (logic.CheckShipBeaten(selectedItem.Tag))
                 {
-                    ListViewGame.Items.Remove(selectedItem);
+                    selectedItem.Remove();
                 }
 
                 if (logic.CheckGameOver() == true)
                 {
-                    labelPlayer.Text = $"{logic.PassTheTurn().Name} победил";
+                    logic.PassTheTurn();
+                    labelPlayer.Text = $"{logic.GetTurnShip().GetType().GetProperty("Name").GetValue(logic.GetTurnShip())} победил";
+
                     MessageBox.Show("Победа");
                     base.Close();
                 }
@@ -70,18 +62,33 @@ namespace WinFormsApp
 
 
 
+        /// <summary>
+        /// Кнопка для восстановления ХП выбранного корабля.
+        /// </summary>
+        /// <param name="sender">Объект, вызвавший событие.</param>
+        /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonHeal_Click(object sender, EventArgs e)
         {
             Logic logic = (Logic)DataContext;
-            short currentHp;
 
             foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
             {
-                labelPlayer.Text = $"Ход {logic.PassTheTurn().Name}";
-
-                currentHp = logic.HealShip(selectedItem.Tag);
-                selectedItem.SubItems[0].Text = currentHp.ToString();
+                ChangePlayerTurn();
+                selectedItem.SubItems[0].Text = logic.GetHealedShipHP(selectedItem.Tag).ToString();
             }
+        }
+
+
+
+        /// <summary>
+        /// Вызывает метод смены хода. Меняет надпись, какой игрок сейчас ходит.
+        /// </summary>
+        private void ChangePlayerTurn()
+        {
+            Logic logic = (Logic)DataContext;
+
+            logic.PassTheTurn();
+            labelPlayer.Text = $"Ход {logic.GetTurnShip().GetType().GetProperty("Name").GetValue(logic.GetTurnShip())}";  
         }
     }
 }

@@ -1,14 +1,3 @@
-using Microsoft.VisualBasic.Logging;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Drawing.Text;
-using System.Linq;
-using System.Net.Quic;
-using System.Windows.Forms;
-using static System.Windows.Forms.DataFormats;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using ClassLibrary;
 
 namespace WinFormsApp
@@ -28,7 +17,12 @@ namespace WinFormsApp
 
             UpdateViewListMain();
 
-            ComboBoxColor.DataSource = Enum.GetValues(typeof(FlagColor));
+            foreach (var item in logic.GetColorFlagNames())
+            {
+                ComboBoxColor.Items.Add(item);
+            }
+
+            ComboBoxColor.SelectedIndex = 0;
         }
 
 
@@ -37,28 +31,11 @@ namespace WinFormsApp
 
 
 
-        public void UpdateViewListMain()
-        {
-            Logic logic = (Logic)DataContext;
-
-            ListViewMain.Items.Clear();
-
-            foreach (Ship ship in logic.Ships)
-            {
-                ListViewItem listViewItem = new ListViewItem();
-                listViewItem.Tag = ship;
-                listViewItem.SubItems[0].Text = logic.GetShip(listViewItem.Tag).Hp.ToString();
-                listViewItem.SubItems.Add(logic.GetShip(listViewItem.Tag).Name.ToString());
-                listViewItem.SubItems.Add(logic.GetShip(listViewItem.Tag).FlagColor.ToString());
-
-                SetRowColor(listViewItem, ship.FlagColor.ToString());
-
-                ListViewMain.Items.Add(listViewItem);
-            }
-        }
-
-
-
+        /// <summary>
+        /// Добавляет новый корабль в ListView.
+        /// </summary>
+        /// <param name="sender">Объект, вызвавший событие.</param>
+        /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonCreateShip_Click(object sender, EventArgs e)
         {
             Logic logic = (Logic)DataContext;
@@ -70,11 +47,17 @@ namespace WinFormsApp
 
                 TextBoxName.Text = "";
             }
+
             UpdateViewListMain();
         }
 
 
 
+        /// <summary>
+        /// Удаляет выбранный корабль из ListView.
+        /// </summary>
+        /// <param name="sender">Объект, вызвавший событие.</param>
+        /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonDeleteShip_Click(object sender, EventArgs e)
         {
             Logic logic = (Logic)DataContext;
@@ -82,65 +65,94 @@ namespace WinFormsApp
             foreach (ListViewItem selectedItem in ListViewMain.SelectedItems)
             {
                 logic.DeleteShip(selectedItem.Tag);
+
                 UpdateViewListMain();
             }
         }
 
 
 
+        /// <summary>
+        /// Меняет название и цвет выбранного корабля в ListView.
+        /// </summary>
+        /// <param name="sender">Объект, вызвавший событие.</param>
+        /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonChangeShipStats_Click(object sender, EventArgs e)
         {
             Logic logic = (Logic)DataContext;
 
             foreach (ListViewItem selectedItem in ListViewMain.SelectedItems)
             {
-                if (string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text == "_No_Color_")
-                {
-                    return;
-                }
-
-                if (ComboBoxColor.Text == "_No_Color_" || (!string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text != "_No_Color_"))
-                {
-                    logic.ChangeShipAttributes(selectedItem.Tag, TextBoxName.Text);
-                    UpdateViewListMain();
-                }
-
-                if (string.IsNullOrWhiteSpace(TextBoxName.Text) || (!string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text != "_No_Color_"))
-                {
-                    logic.ChangeShipAttributes(selectedItem.Tag, ComboBoxColor.SelectedItem);
-                    UpdateViewListMain();
-                }       
+                logic.ChangeShipAttributes(selectedItem.Tag, TextBoxName.Text, ComboBoxColor.SelectedItem.ToString());
             }
+
+            UpdateViewListMain();
             TextBoxName.Text = "";
         }
 
 
 
+        /// <summary>
+        /// Открывает новое игровое окно.
+        /// </summary>
+        /// <param name="sender">Объект, вызвавший событие.</param>
+        /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonStartGame_Click(object sender, EventArgs e)
         {
             Logic logic = (Logic)DataContext;
-            logic.RecoverHP();
-            UpdateViewListMain();
-            formGame = new FormGame((Logic)DataContext, ListViewMain);
-            formGame.ShowDialog();
-            UpdateViewListMain();
+
+            if (logic.GetShipsList().Count > 1)
+            {
+                logic.RecoverHP();
+                UpdateViewListMain();
+
+                formGame = new FormGame((Logic)DataContext, ListViewMain);
+                formGame.ShowDialog();
+                UpdateViewListMain();
+            }
+
+            else
+            {
+                MessageBox.Show("Добавьте больше кораблей капитан!!!!!!!!!!!!!!!!!!!!!");
+            }
         }
 
 
 
-        public void SetRowColor(ListViewItem selectedItem, string color)
+        /// <summary>
+        /// Актуализирует отображение объектов в ListView.
+        /// </summary>
+        private void UpdateViewListMain()
         {
-            switch (color)
-            {
-                case "Red": selectedItem.ForeColor = Color.Red; break;
-                case "Green": selectedItem.ForeColor = Color.Green; break;
-                case "Blue": selectedItem.ForeColor = Color.Blue; break;
-                case "Yellow": selectedItem.ForeColor = Color.DarkOrange; break;
-                case "Pink": selectedItem.ForeColor = Color.Magenta; break;
-                case "Black": selectedItem.ForeColor = Color.Black; break;
+            Logic logic = (Logic)DataContext;
 
-                case "_No_Color_": break;
+            ListViewMain.Items.Clear();
+
+            foreach (var ship in logic.GetShipsList())
+            {
+                ListViewItem listViewItem = new ListViewItem();
+                listViewItem.Tag = ship;
+
+                listViewItem.SubItems[0].Text = logic.GetShip(ship).GetType().GetProperty("Hp").GetValue(ship).ToString();
+                listViewItem.SubItems.Add(logic.GetShip(ship).GetType().GetProperty("Name").GetValue(ship).ToString());
+                listViewItem.SubItems.Add(logic.GetShip(ship).GetType().GetProperty("FlagColor").GetValue(ship).ToString());
+
+                listViewItem.ForeColor = logic.GetColorByFlagColor(ship);
+
+                ListViewMain.Items.Add(listViewItem);
             }
+        }
+
+
+
+        /// <summary>
+        /// Выводит окно с пояснениями.
+        /// </summary>
+        /// <param name="sender">Объект, вызвавший событие.</param>
+        /// <param name="e">Доп. информация о событии для обработчика.</param>
+        private void buttonHelp_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("");
         }
     }
 }

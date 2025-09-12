@@ -95,7 +95,7 @@
             Controls.Add(label1);
             Controls.Add(ListViewGame);
             Name = "FormGame";
-            Text = "FormGame";
+            Text = "Меню разноса флота";
             ResumeLayout(false);
             PerformLayout();
         }

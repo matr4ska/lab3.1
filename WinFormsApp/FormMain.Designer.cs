@@ -38,6 +38,7 @@
             label3 = new Label();
             label2 = new Label();
             label1 = new Label();
+            buttonHelp = new Button();
             SuspendLayout();
             // 
             // ButtonCreateShip
@@ -133,11 +134,24 @@
             label1.TabIndex = 5;
             label1.Text = "Делай короабль, йохохо";
             // 
+            // buttonHelp
+            // 
+            buttonHelp.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 204);
+            buttonHelp.Location = new Point(1081, 378);
+            buttonHelp.Name = "buttonHelp";
+            buttonHelp.RightToLeft = RightToLeft.No;
+            buttonHelp.Size = new Size(50, 47);
+            buttonHelp.TabIndex = 10;
+            buttonHelp.Text = " ?";
+            buttonHelp.UseVisualStyleBackColor = true;
+            buttonHelp.Click += buttonHelp_Click;
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1167, 450);
+            Controls.Add(buttonHelp);
             Controls.Add(TextBoxName);
             Controls.Add(ComboBoxColor);
             Controls.Add(label3);
@@ -166,5 +180,6 @@
         private Label label3;
         private Label label2;
         private Label label1;
+        private Button buttonHelp;
     }
 }
