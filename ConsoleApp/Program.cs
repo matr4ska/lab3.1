@@ -23,7 +23,6 @@ while (true)
     Console.WriteLine("2 - Потопить корабль");
     Console.WriteLine("3 - Изменить корабль");
     Console.WriteLine("4 - Новая игра");
-    Console.WriteLine("5 - Help");
     Console.WriteLine();
 
     input = Console.ReadLine()?.Replace(" ", "");
@@ -146,6 +145,7 @@ while (true)
                 Console.WriteLine("Что прикажете?");
                 Console.WriteLine("1 - Атаковать");
                 Console.WriteLine("2 - Отремонитровать");
+                Console.WriteLine();
                 do
                 {
                     commandNumber = Console.ReadLine()?.Replace(" ", "");
@@ -153,7 +153,8 @@ while (true)
                 while (commandNumber != "1" && commandNumber != "2");
 
                 Console.WriteLine();
-                Console.WriteLine("Выберите корабль (по номеру)");
+                Console.WriteLine("Выберите корабль (по номеру):");
+                Console.WriteLine();
                 do
                 {
                     input = Console.ReadLine()?.Replace(" ", "");
@@ -171,17 +172,6 @@ while (true)
             Console.Clear();
             logic.GetTurnShip();
             Console.WriteLine($"Победа за {logic.GetTurnShip().GetType().GetProperty("Name").GetValue(logic.GetTurnShip())}!!!");
-            Console.ReadKey();
-            break;
-
-
-
-        case "5":
-            Console.WriteLine("");
-            Console.WriteLine("");
-            Console.WriteLine("");
-            Console.WriteLine("");
-            Console.WriteLine("");
             Console.ReadKey();
             break;
 

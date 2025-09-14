@@ -1,4 +1,5 @@
-﻿using Model;
+﻿using Microsoft.VisualBasic;
+using Model;
 using System.Drawing;
 
 
@@ -299,9 +300,19 @@ namespace ClassLibrary
         /// <summary>
         /// 
         /// </summary>
-        public void GetHelpText()
+        public string GetHelpText()
         {
-
+            string result = @"";
+            using (var reader = new StreamReader(@"help.txt"))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    result += line;
+                    result += Environment.NewLine;
+                }
+                return result;
+            }
         }
     }
 }
