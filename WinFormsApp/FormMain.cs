@@ -1,5 +1,6 @@
 using ClassLibrary;
 
+
 namespace WinFormsApp
 {
     public partial class FormMain : Form
@@ -27,10 +28,6 @@ namespace WinFormsApp
 
 
 
-        private FormGame formGame;
-
-
-
         /// <summary>
         /// Добавляет новый корабль в ListView.
         /// </summary>
@@ -40,15 +37,11 @@ namespace WinFormsApp
         {
             Logic logic = (Logic)DataContext;
 
-            if (!string.IsNullOrWhiteSpace(TextBoxName.Text) && ComboBoxColor.Text != "_No_Color_")
-            {
-                ListViewItem listViewItem = new ListViewItem();
-                listViewItem.Tag = logic.CreateShip(TextBoxName.Text, ComboBoxColor.SelectedItem);
+            ListViewItem listViewItem = new ListViewItem();
+            listViewItem.Tag = logic.CreateShip(TextBoxName.Text, ComboBoxColor.SelectedItem);
+            TextBoxName.Text = "";
 
-                TextBoxName.Text = "";
-            }
-
-            UpdateViewListMain();
+            UpdateViewListMain();   
         }
 
 
@@ -86,14 +79,14 @@ namespace WinFormsApp
                 logic.ChangeShipAttributes(selectedItem.Tag, TextBoxName.Text, ComboBoxColor.SelectedItem.ToString());
             }
 
-            UpdateViewListMain();
             TextBoxName.Text = "";
+            UpdateViewListMain();
         }
 
 
 
         /// <summary>
-        /// Открывает новое игровое окно.
+        /// Открывает игровое окно.
         /// </summary>
         /// <param name="sender">Объект, вызвавший событие.</param>
         /// <param name="e">Доп. информация о событии для обработчика.</param>
@@ -101,20 +94,10 @@ namespace WinFormsApp
         {
             Logic logic = (Logic)DataContext;
 
-            if (logic.GetShipsList().Count > 1)
-            {
-                logic.RecoverHP();
-                UpdateViewListMain();
-
-                formGame = new FormGame((Logic)DataContext, ListViewMain);
-                formGame.ShowDialog();
-                UpdateViewListMain();
-            }
-
-            else
-            {
-                MessageBox.Show("Добавьте больше кораблей капитан!!!!!!!!!!!!!!!!!!!!!");
-            }
+            FormGame formGame = new FormGame((Logic)DataContext, ListViewMain);
+            formGame.ShowDialog();
+            
+            UpdateViewListMain();
         }
 
 
@@ -152,7 +135,9 @@ namespace WinFormsApp
         /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void buttonHelp_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("");
+            MessageBox.Show("Создать корабль - вписать название, выбрать цвет, нажать создать корабль." +
+                "Удалить корабль - нажать на корабль в списке, нажать удалить корабль." +
+                "Редактировать характеристики - не вводить имя, чтобы поменять цвет. Выбрать цвет _No_Color_, чтобы поменять название. Можно и ввести название, и выбрать цвет. Нажать редактировать характеристики");
         }
     }
 }

@@ -2,34 +2,208 @@
 
 
 string? input;
+byte shipIndex;
+byte colorIndex;
+string? commandNumber;
+string? shipName;
+string? shipColor;
+bool result;
+
+Logic logic = new Logic();
 
 while (true)
 {
-    Console.WriteLine("ssssssss");
-    Console.WriteLine("1 - CreateShip");
-    Console.WriteLine("2 - DeleteShip");
-    Console.WriteLine("3 - ChangeShipStats");
-    Console.WriteLine("4 - NewGame");
+    Console.Clear();
+    Console.WriteLine("Ваш флот:");
+    ShowShipsList();
+
+    Console.WriteLine();
+    Console.WriteLine("Делай корабли, йохохо");
+    Console.WriteLine("1 - Построить корабль");
+    Console.WriteLine("2 - Потопить корабль");
+    Console.WriteLine("3 - Изменить корабль");
+    Console.WriteLine("4 - Новая игра");
     Console.WriteLine("5 - Help");
+    Console.WriteLine();
 
     input = Console.ReadLine()?.Replace(" ", "");
+    Console.Clear();
 
-    switch(input)
+    switch (input)
     {
         case "1":
-            Console.WriteLine("Название кораблся:");
-            input = Console.ReadLine()?.Replace(" ", "");
-        case "1":
+            Console.WriteLine("Название корабля:");
+            do
+            {
+                shipName = Console.ReadLine();
+            }
+            while (string.IsNullOrWhiteSpace(shipName));
 
-        case "1":
+            Console.Clear();
+            Console.WriteLine("Цвет флага корабля:");
+            for (int i = 1; i < logic.GetColorFlagNames().Count; i++)
+            {
+                Console.WriteLine($"{i} - {logic.GetColorFlagNames()[i]}");
+            }
 
-        case "1":
+            do
+            {
+                shipColor = Console.ReadLine()?.Replace(" ", "");
+                result = byte.TryParse(shipColor, out colorIndex);
+            }
+            while (result == false || colorIndex > logic.GetColorFlagNames().Count - 1 || colorIndex < 1);
 
-        case "1":
+            Console.Clear();
+            logic.CreateShip(shipName, logic.GetColorFlagNames()[colorIndex]);
+            Console.WriteLine($"{shipName} построен!");
+            Console.ReadKey();
+            break;
+
+
+
+        case "2":
+            ShowShipsList();
+
+            Console.WriteLine();
+            Console.WriteLine("Какой корабль удалить?");
+            do
+            {
+                input = Console.ReadLine()?.Replace(" ", "");
+                result = byte.TryParse(input, out shipIndex);
+            }
+            while (result == false || shipIndex > logic.GetShipsList().Count || shipIndex < 1);
+
+            Console.Clear();
+            Console.WriteLine($"Корабль {logic.GetShipsList()[shipIndex - 1].GetType().GetProperty("Name").GetValue(logic.GetShipsList()[shipIndex - 1])} потоплен!");
+            logic.DeleteShip(logic.GetShipsList()[shipIndex - 1]);
+            Console.ReadKey();
+            break;
+
+
+
+        case "3":
+            ShowShipsList();
+
+            Console.WriteLine();
+            Console.WriteLine("Выберите корабль (по номеру)");
+            do
+            {
+                input = Console.ReadLine()?.Replace(" ", "");
+                result = byte.TryParse(input, out shipIndex);
+            }
+            while (result == false || shipIndex > logic.GetShipsList().Count || shipIndex < 1);
+
+            Console.WriteLine();
+            Console.WriteLine("Новое название корабля:");
+            Console.WriteLine("(enter, чтобы не менять)");
+            shipName = Console.ReadLine();
+
+            Console.WriteLine();
+            Console.WriteLine("Цвет флага корабля:");
+            Console.WriteLine("0 - не менять");
+            for (int i = 1; i < logic.GetColorFlagNames().Count; i++)
+            {
+                Console.WriteLine($"{i} - {logic.GetColorFlagNames()[i]}");
+            }
+
+            do
+            {
+                shipColor = Console.ReadLine()?.Replace(" ", "");
+                result = byte.TryParse(shipColor, out colorIndex);
+            }
+            while (result == false || colorIndex > logic.GetColorFlagNames().Count - 1);
+
+            Console.Clear();
+            logic.ChangeShipAttributes(logic.GetShipsList()[shipIndex - 1], shipName, logic.GetColorFlagNames()[colorIndex]);
+            Console.WriteLine("Корабль изменен:");
+            Console.Write($"{logic.GetShipsList()[shipIndex - 1].GetType().GetProperty("Name").GetValue(logic.GetShipsList()[shipIndex - 1])} - ");
+            Console.Write(logic.GetShipsList()[shipIndex - 1].GetType().GetProperty("FlagColor").GetValue(logic.GetShipsList()[shipIndex - 1]));
+            Console.WriteLine();
+            Console.ReadKey();
+            break;
+
+
+
+        case "4":
+            logic.InitializeGame();
+
+            while (logic.GetShipsInBattleList().Count > 1)
+            {
+                Console.Clear();
+                Console.WriteLine($"Ход {logic.GetTurnShip().GetType().GetProperty("Name").GetValue(logic.GetTurnShip())}");
+                Console.WriteLine();
+                for (int i = 0; i < logic.GetShipsInBattleList().Count(); i++)
+                {
+                    Console.ForegroundColor = logic.GetConsoleColorByFlagColor(logic.GetShipsInBattleList()[i]);
+                    Console.Write($"{i + 1} - {logic.GetShipsInBattleList()[i].GetType().GetProperty("Hp").GetValue(logic.GetShipsInBattleList()[i])} HP - ");
+                    Console.Write($"{logic.GetShipsInBattleList()[i].GetType().GetProperty("Name").GetValue(logic.GetShipsInBattleList()[i])} - ");
+                    Console.Write(logic.GetShipsInBattleList()[i].GetType().GetProperty("FlagColor").GetValue(logic.GetShipsInBattleList()[i]));
+                    Console.WriteLine();
+                    Console.ResetColor();
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("Что прикажете?");
+                Console.WriteLine("1 - Атаковать");
+                Console.WriteLine("2 - Отремонитровать");
+                do
+                {
+                    commandNumber = Console.ReadLine()?.Replace(" ", "");
+                }
+                while (commandNumber != "1" && commandNumber != "2");
+
+                Console.WriteLine();
+                Console.WriteLine("Выберите корабль (по номеру)");
+                do
+                {
+                    input = Console.ReadLine()?.Replace(" ", "");
+                    result = byte.TryParse(input, out shipIndex);
+                }
+                while (result == false || shipIndex > logic.GetShipsInBattleList().Count || shipIndex < 1);
+
+                switch (commandNumber)
+                {
+                    case "1": logic.AttackShipHP(logic.GetShipsInBattleList()[shipIndex - 1]); break;
+                    case "2": logic.HealShipHP(logic.GetShipsInBattleList()[shipIndex - 1]); break;
+                }
+            }
+
+            Console.Clear();
+            logic.GetTurnShip();
+            Console.WriteLine($"Победа за {logic.GetTurnShip().GetType().GetProperty("Name").GetValue(logic.GetTurnShip())}!!!");
+            Console.ReadKey();
+            break;
+
+
+
+        case "5":
+            Console.WriteLine("");
+            Console.WriteLine("");
+            Console.WriteLine("");
+            Console.WriteLine("");
+            Console.WriteLine("");
+            Console.ReadKey();
+            break;
+
+
 
         default: break;
     }
+}
 
 
 
+
+
+void ShowShipsList()
+{
+    for (int i = 0; i < logic.GetShipsList().Count(); i++)
+    {
+        Console.ForegroundColor = logic.GetConsoleColorByFlagColor(logic.GetShipsList()[i]);
+        Console.Write($"{i + 1} - {logic.GetShipsList()[i].GetType().GetProperty("Hp").GetValue(logic.GetShipsList()[i])} HP - ");
+        Console.Write($"{logic.GetShipsList()[i].GetType().GetProperty("Name").GetValue(logic.GetShipsList()[i])} - ");
+        Console.Write(logic.GetShipsList()[i].GetType().GetProperty("FlagColor").GetValue(logic.GetShipsList()[i]));
+        Console.WriteLine();
+        Console.ResetColor();
+    }
 }

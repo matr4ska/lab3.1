@@ -43,31 +43,31 @@
             // 
             // ButtonCreateShip
             // 
-            ButtonCreateShip.Location = new Point(553, 58);
+            ButtonCreateShip.Location = new Point(542, 171);
             ButtonCreateShip.Name = "ButtonCreateShip";
-            ButtonCreateShip.Size = new Size(150, 45);
+            ButtonCreateShip.Size = new Size(171, 45);
             ButtonCreateShip.TabIndex = 0;
-            ButtonCreateShip.Text = "CreateShip";
+            ButtonCreateShip.Text = "Построить корабль";
             ButtonCreateShip.UseVisualStyleBackColor = true;
             ButtonCreateShip.Click += ButtonCreateShip_Click;
             // 
             // ButtonDeleteShip
             // 
-            ButtonDeleteShip.Location = new Point(553, 109);
+            ButtonDeleteShip.Location = new Point(542, 222);
             ButtonDeleteShip.Name = "ButtonDeleteShip";
-            ButtonDeleteShip.Size = new Size(150, 45);
+            ButtonDeleteShip.Size = new Size(171, 45);
             ButtonDeleteShip.TabIndex = 1;
-            ButtonDeleteShip.Text = "DeleteShip";
+            ButtonDeleteShip.Text = "Потопить корабль";
             ButtonDeleteShip.UseVisualStyleBackColor = true;
             ButtonDeleteShip.Click += ButtonDeleteShip_Click;
             // 
             // ButtonChangeShipStats
             // 
-            ButtonChangeShipStats.Location = new Point(553, 160);
+            ButtonChangeShipStats.Location = new Point(542, 273);
             ButtonChangeShipStats.Name = "ButtonChangeShipStats";
-            ButtonChangeShipStats.Size = new Size(150, 45);
+            ButtonChangeShipStats.Size = new Size(171, 45);
             ButtonChangeShipStats.TabIndex = 2;
-            ButtonChangeShipStats.Text = "ChangeShipStats";
+            ButtonChangeShipStats.Text = "Изменить корабль";
             ButtonChangeShipStats.UseVisualStyleBackColor = true;
             ButtonChangeShipStats.Click += ButtonChangeShipStats_Click;
             // 
@@ -83,25 +83,25 @@
             // 
             // ButtonStartGame
             // 
-            ButtonStartGame.Location = new Point(553, 329);
+            ButtonStartGame.Location = new Point(542, 376);
             ButtonStartGame.Name = "ButtonStartGame";
-            ButtonStartGame.Size = new Size(219, 62);
+            ButtonStartGame.Size = new Size(249, 62);
             ButtonStartGame.TabIndex = 4;
-            ButtonStartGame.Text = "StartGame";
+            ButtonStartGame.Text = "Новая игра";
             ButtonStartGame.UseVisualStyleBackColor = true;
             ButtonStartGame.Click += ButtonStartGame_Click;
             // 
             // TextBoxName
             // 
-            TextBoxName.Location = new Point(918, 150);
+            TextBoxName.Location = new Point(653, 67);
             TextBoxName.Name = "TextBoxName";
-            TextBoxName.Size = new Size(224, 27);
+            TextBoxName.Size = new Size(243, 27);
             TextBoxName.TabIndex = 9;
             // 
             // ComboBoxColor
             // 
             ComboBoxColor.FormattingEnabled = true;
-            ComboBoxColor.Location = new Point(918, 203);
+            ComboBoxColor.Location = new Point(653, 114);
             ComboBoxColor.Name = "ComboBoxColor";
             ComboBoxColor.Size = new Size(124, 28);
             ComboBoxColor.TabIndex = 8;
@@ -109,7 +109,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(815, 206);
+            label3.Location = new Point(542, 117);
             label3.Name = "label3";
             label3.Size = new Size(86, 20);
             label3.TabIndex = 7;
@@ -118,7 +118,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(815, 153);
+            label2.Location = new Point(542, 71);
             label2.Name = "label2";
             label2.Size = new Size(77, 20);
             label2.TabIndex = 6;
@@ -128,19 +128,19 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 204);
-            label1.Location = new Point(859, 63);
+            label1.Location = new Point(542, 12);
             label1.Name = "label1";
-            label1.Size = new Size(256, 28);
+            label1.Size = new Size(246, 28);
             label1.TabIndex = 5;
-            label1.Text = "Делай короабль, йохохо";
+            label1.Text = "Делай корабли, йохохо";
             // 
             // buttonHelp
             // 
             buttonHelp.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 204);
-            buttonHelp.Location = new Point(1081, 378);
+            buttonHelp.Location = new Point(835, 376);
             buttonHelp.Name = "buttonHelp";
             buttonHelp.RightToLeft = RightToLeft.No;
-            buttonHelp.Size = new Size(50, 47);
+            buttonHelp.Size = new Size(61, 62);
             buttonHelp.TabIndex = 10;
             buttonHelp.Text = " ?";
             buttonHelp.UseVisualStyleBackColor = true;
@@ -150,7 +150,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1167, 450);
+            ClientSize = new Size(914, 456);
             Controls.Add(buttonHelp);
             Controls.Add(TextBoxName);
             Controls.Add(ComboBoxColor);

@@ -49,7 +49,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 204);
-            label1.Location = new Point(266, 24);
+            label1.Location = new Point(260, 16);
             label1.Name = "label1";
             label1.Size = new Size(255, 31);
             label1.TabIndex = 1;
@@ -57,38 +57,38 @@
             // 
             // ButtonAttack
             // 
-            ButtonAttack.Location = new Point(198, 365);
+            ButtonAttack.Location = new Point(142, 365);
             ButtonAttack.Name = "ButtonAttack";
-            ButtonAttack.Size = new Size(94, 29);
+            ButtonAttack.Size = new Size(182, 29);
             ButtonAttack.TabIndex = 2;
-            ButtonAttack.Text = "Attack!";
+            ButtonAttack.Text = "Атаковать!";
             ButtonAttack.UseVisualStyleBackColor = true;
             ButtonAttack.Click += ButtonAttack_Click;
             // 
             // ButtonHeal
             // 
-            ButtonHeal.Location = new Point(506, 365);
+            ButtonHeal.Location = new Point(452, 365);
             ButtonHeal.Name = "ButtonHeal";
-            ButtonHeal.Size = new Size(94, 29);
+            ButtonHeal.Size = new Size(182, 29);
             ButtonHeal.TabIndex = 3;
-            ButtonHeal.Text = "Heal!";
+            ButtonHeal.Text = "Отремонтировать!";
             ButtonHeal.UseVisualStyleBackColor = true;
             ButtonHeal.Click += ButtonHeal_Click;
             // 
             // labelPlayer
             // 
-            labelPlayer.Location = new Point(266, 55);
+            labelPlayer.Location = new Point(260, 52);
             labelPlayer.Name = "labelPlayer";
             labelPlayer.Size = new Size(255, 24);
             labelPlayer.TabIndex = 4;
-            labelPlayer.Text = "label2";
+            labelPlayer.Text = "а нет, никто ж не пришел";
             labelPlayer.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // FormGame
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(783, 450);
+            ClientSize = new Size(783, 430);
             Controls.Add(labelPlayer);
             Controls.Add(ButtonHeal);
             Controls.Add(ButtonAttack);

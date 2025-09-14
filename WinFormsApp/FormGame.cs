@@ -1,6 +1,5 @@
 ﻿using ClassLibrary;
-using Microsoft.VisualBasic.Logging;
-using System.Data;
+
 
 namespace WinFormsApp
 {
@@ -19,17 +18,13 @@ namespace WinFormsApp
             ListViewGame.Columns.Add("Name", -2);
             ListViewGame.Columns.Add("Color", -2);
 
-            ListViewGame.Items.AddRange((from ListViewItem item in listViewMain.Items
-                                         select (ListViewItem)item
-                                         .Clone())
-                                         .ToArray());
-
-            logic.InitializeShipsInBattleList();
-            ChangePlayerTurn();
+            logic.InitializeGame();
+            logic.GameOverNotify += EndGame;
+            UpdateViewListGame(0);
         }
 
 
-
+        
         /// <summary>
         /// Кнопка для понижения ХП выбранного корабля.
         /// </summary>
@@ -41,22 +36,9 @@ namespace WinFormsApp
 
             foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
             {
-                ChangePlayerTurn();
-                selectedItem.SubItems[0].Text = logic.GetAttackedShipHP(selectedItem.Tag).ToString();
-
-                if (logic.CheckShipBeaten(selectedItem.Tag))
-                {
-                    selectedItem.Remove();
-                }
-
-                if (logic.CheckGameOver() == true)
-                {
-                    logic.PassTheTurn();
-                    labelPlayer.Text = $"{logic.GetTurnShip().GetType().GetProperty("Name").GetValue(logic.GetTurnShip())} победил";
-
-                    MessageBox.Show("Победа");
-                    base.Close();
-                }
+                logic.AttackShipHP(selectedItem.Tag);
+                UpdateViewListGame(ListViewGame.Items.IndexOf(selectedItem));
+                logic.CheckShipsInBattle();
             }
         }
 
@@ -73,22 +55,54 @@ namespace WinFormsApp
 
             foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
             {
-                ChangePlayerTurn();
-                selectedItem.SubItems[0].Text = logic.GetHealedShipHP(selectedItem.Tag).ToString();
+                logic.HealShipHP(selectedItem.Tag);
+                UpdateViewListGame(ListViewGame.Items.IndexOf(selectedItem));
+                logic.CheckShipsInBattle();
             }
         }
 
 
 
         /// <summary>
-        /// Вызывает метод смены хода. Меняет надпись, какой игрок сейчас ходит.
+        /// Актуализирует отображение объектов в ListView.
         /// </summary>
-        private void ChangePlayerTurn()
+        private void UpdateViewListGame(int selectedItemIndex)
         {
             Logic logic = (Logic)DataContext;
 
-            logic.PassTheTurn();
-            labelPlayer.Text = $"Ход {logic.GetTurnShip().GetType().GetProperty("Name").GetValue(logic.GetTurnShip())}";  
+            ListViewGame.Items.Clear();
+
+            foreach (var ship in logic.GetShipsInBattleList())
+            {
+                ListViewItem listViewItem = new ListViewItem();
+                listViewItem.Tag = ship;
+
+                listViewItem.SubItems[0].Text = logic.GetShip(ship).GetType().GetProperty("Hp").GetValue(ship).ToString();
+                listViewItem.SubItems.Add(logic.GetShip(ship).GetType().GetProperty("Name").GetValue(ship).ToString());
+                listViewItem.SubItems.Add(logic.GetShip(ship).GetType().GetProperty("FlagColor").GetValue(ship).ToString());
+                listViewItem.ForeColor = logic.GetColorByFlagColor(ship);
+
+                ListViewGame.Items.Add(listViewItem);
+
+                ListViewGame.Items[selectedItemIndex].Selected = true;
+                
+                labelPlayer.Text = $"Ход {logic.GetTurnShip().GetType().GetProperty("Name").GetValue(logic.GetTurnShip())}";
+            }
+        }
+
+
+
+        /// <summary>
+        /// Выводит победное сообщение и закрывает окно игры.
+        /// </summary>
+        private void EndGame()
+        {
+            Logic logic = (Logic)DataContext;
+
+            UpdateViewListGame(0);
+
+            MessageBox.Show($"Победа за {ListViewGame.Items[0].SubItems[1].Text}!!!");
+            base.Close();
         }
     }
 }

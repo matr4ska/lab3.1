@@ -1,6 +1,6 @@
 ﻿using Model;
 using System.Drawing;
-using System.Reflection.Metadata.Ecma335;
+
 
 namespace ClassLibrary
 {
@@ -13,10 +13,10 @@ namespace ClassLibrary
             new Ship("ObraDinn", FlagColor.Blue)
         };
 
-
         private List<Ship> ShipsInBattle = new List<Ship>();
 
-
+        public delegate void GameOverHandler();
+        public event GameOverHandler? GameOverNotify;
 
 
 
@@ -25,14 +25,19 @@ namespace ClassLibrary
         /// </summary>
         /// <param name="name">Название</param>
         /// <param name="flagColor">Цвет</param>
-        /// <returns>Объект корабля.</returns>
+        /// <returns>Объект корабля. Null, если входные данные некорректны.</returns>
         public Ship CreateShip(string name, object flagColor)
         {
-            Ship ship = new Ship(name, FlagColor.Black);
-            SetFlagColor(ship, flagColor.ToString());
-            Ships.Add(ship);
-            return ship;
+            if (!string.IsNullOrWhiteSpace(name) && flagColor.ToString() != "_No_Color_")
+            {
+                Ship ship = new Ship(name, FlagColor.Black);
+                SetFlagColor(ship, flagColor.ToString());
+                Ships.Add(ship);
+                return ship;
+            }
+            return null;
         }
+
 
 
         /// <summary>
@@ -42,12 +47,22 @@ namespace ClassLibrary
         public void DeleteShip(object ship) => Ships.Remove((Ship)ship);
 
 
+
         /// <summary>
         /// Возвращает объект корабля.
         /// </summary>
         /// <param name="ship"></param>
-        /// <returns>Объект корабля.</returns>
-        public Ship GetShip(object ship) => Ships[Ships.IndexOf((Ship)ship)];
+        /// <returns>Объект искомого корабля. Null, если список кораблей пуст.</returns>
+        public Ship GetShip(object ship)
+        {
+            if (Ships.Count == 0) 
+            { 
+                return null; 
+            }
+
+            return Ships[Ships.IndexOf((Ship)ship)];
+        }
+
 
 
         /// <summary>
@@ -57,12 +72,39 @@ namespace ClassLibrary
         public List<Ship> GetShipsList() => Ships;
 
 
+
+        /// <summary>
+        /// Возвращает список кораблей с ХП больше нуля (для игры).
+        /// </summary>
+        /// <returns>Список кораблей с ХП больше нуля.</returns>
+        public List<Ship> GetShipsInBattleList() => ShipsInBattle;
+
+
+
+        /// <summary>
+        /// Создает новый список кораблей для новой игры.
+        /// </summary>
+        public void InitializeGame()
+        {
+            GameOverNotify = null;
+            ShipsInBattle.Clear();
+
+            if (Ships.Count != 0)
+            {
+                RecoverHP();
+                ShipsInBattle = (from Ship ship in Ships select ship).ToList();
+                PassTheTurn();
+            }
+        }
+
+
+
         /// <summary>
         /// Меняет название и цвет флага корабля.
         /// </summary>
         /// <param name="ship">Объект корабля</param>
-        /// <param name="name">Новое название</param>
-        /// <param name="flagColor">Новый цвет</param>
+        /// <param name="name">Новое название корабля</param>
+        /// <param name="flagColor">Название цвета флага</param>
         public void ChangeShipAttributes(object ship, string name, string flagColor)
         {
             if (string.IsNullOrWhiteSpace(name) && flagColor == "_No_Color_")
@@ -77,8 +119,6 @@ namespace ClassLibrary
 
 
 
-
-
         /// <summary>
         /// Возвращает список названий возможных цветов флага из перечисления цветов флага.
         /// </summary>
@@ -86,11 +126,12 @@ namespace ClassLibrary
         public List<string> GetColorFlagNames() => Enum.GetNames(typeof(FlagColor)).ToList();
 
 
+
         /// <summary>
-        /// Задает объекту корабля цвет флага по названию цвета.
+        /// Задает объекту корабля цвет флага по строке с названием цвета.
         /// </summary>
         /// <param name="ship">Объект корабля</param>
-        /// <param name="color">Цвет</param>
+        /// <param name="color">Название цвета</param>
         private void SetFlagColor(Ship ship, string color)
         {
             switch (color)
@@ -107,11 +148,12 @@ namespace ClassLibrary
         }
 
 
+
         /// <summary>
-        /// Возвращает цвет по цвету флага корабля.
+        /// Возвращает цвет типа Color по цвету флага корабля.
         /// </summary>
         /// <param name="ship">Объект корабля</param>
-        /// <returns>Цвет.</returns>
+        /// <returns>Цвет типа Color.</returns>
         public Color GetColorByFlagColor(object ship)
         {
             switch (((Ship)ship).FlagColor)
@@ -128,16 +170,25 @@ namespace ClassLibrary
 
 
 
-
-
         /// <summary>
-        /// Создает новый список кораблей для новой игры.
+        /// Возвращает цвет типа ConsoleColor по цвету флага корабля.
         /// </summary>
-        public void InitializeShipsInBattleList()
+        /// <param name="ship">Объект корабля</param>
+        /// <returns>Цвет типа ConsoleColor.</returns>
+        public ConsoleColor GetConsoleColorByFlagColor(object ship)
         {
-            ShipsInBattle.Clear();
-            ShipsInBattle = (from Ship ship in Ships select ship).ToList();
+            switch (((Ship)ship).FlagColor)
+            {
+                case FlagColor.Red: return ConsoleColor.Red;
+                case FlagColor.Green: return ConsoleColor.Green;
+                case FlagColor.Blue: return ConsoleColor.Blue;
+                case FlagColor.Yellow: return ConsoleColor.Yellow;
+                case FlagColor.Pink: return ConsoleColor.Magenta;
+
+                default: return ConsoleColor.Gray;
+            }
         }
+
 
 
         /// <summary>
@@ -145,11 +196,18 @@ namespace ClassLibrary
         /// </summary>
         /// <param name="ship">Объект корабля</param>
         /// <returns>ХП корабля.</returns>
-        public short GetAttackedShipHP(object ship)
+        public void AttackShipHP(object ship)
         {
             Ships[Ships.IndexOf((Ship)ship)].Hp -= 20;
-            return Ships[Ships.IndexOf((Ship)ship)].Hp;
+            
+            if (Ships[Ships.IndexOf((Ship)ship)].Hp <= 0)
+            {
+                ShipsInBattle.Remove((Ship)ship);
+            }
+
+            PassTheTurn();
         }
+
 
 
         /// <summary>
@@ -157,51 +215,32 @@ namespace ClassLibrary
         /// </summary>
         /// <param name="ship">Объект корабля</param>
         /// <returns>ХП корабля.</returns>
-        public short GetHealedShipHP(object ship)
+        public void HealShipHP(object ship)
         {
             Ships[Ships.IndexOf((Ship)ship)].Hp += 15;
-            return Ships[Ships.IndexOf((Ship)ship)].Hp;
+            PassTheTurn();
         }
+
 
 
         /// <summary>
-        /// Проверяет, опустилось ли ХП корабля ниже нуля.
+        /// Проверяет, остался ли в игре один единственный корабль. Вызывает событие завершения игры.
         /// </summary>
-        /// <param name="ship">Объект корабля</param>
-        /// <returns>true, если опустилось. false, если нет.</returns>
-        public bool CheckShipBeaten(object ship)
+        public void CheckShipsInBattle()
         {
-            if (Ships[Ships.IndexOf((Ship)ship)].Hp <= 0)
+            if (ShipsInBattle.Count <= 1)
             {
-                ShipsInBattle.Remove((Ship)ship);
-                return true;
+                PassTheTurn();
+                GameOverNotify?.Invoke();   
             }
-            return false;
         }
-
-
-        /// <summary>
-        /// Проверяет, остался ли лишь один корабль с ХП выше нуля.
-        /// </summary>
-        /// <returns>true, если остался. false, если нет.</returns>
-        public bool CheckGameOver()
-        {
-            if (ShipsInBattle.Count == 1)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-
 
 
 
         /// <summary>
         /// Передает ход следующему кораблю (игроку).
         /// </summary>
-        public void PassTheTurn()
+        private void PassTheTurn()
         {
             if (ShipsInBattle.Last().IsYourTurn == true)
             {
@@ -224,10 +263,11 @@ namespace ClassLibrary
         }
 
 
+
         /// <summary>
         /// Возвращает корабль, который сейчас ходит.
         /// </summary>
-        /// <returns>Объект корабля.</returns>
+        /// <returns>Объект корабля. Null, если корабль не найден.</returns>
         public Ship GetTurnShip()
         {
             foreach (Ship ship in ShipsInBattle) 
@@ -238,22 +278,30 @@ namespace ClassLibrary
                 }
             }
 
-            return Ships[0];
+            return null;
         }
 
-
-      
 
 
         /// <summary>
         /// Восстанавливает ХП всем кораблям.
         /// </summary>
-        public void RecoverHP()
+        private void RecoverHP()
         {
             foreach (Ship ship in Ships)
             {
                 ship.Hp = 100;
             }
         }   
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void GetHelpText()
+        {
+
+        }
     }
 }
