@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using Model;
-using System.Drawing;
+﻿using System.Drawing;
 
 
 namespace ClassLibrary
@@ -145,48 +143,6 @@ namespace ClassLibrary
                 case "Black": ship.FlagColor = FlagColor.Black; break;
 
                 default: ship.FlagColor = FlagColor._No_Color_; break;
-            }
-        }
-
-
-
-        /// <summary>
-        /// Возвращает цвет типа Color по цвету флага корабля.
-        /// </summary>
-        /// <param name="ship">Объект корабля</param>
-        /// <returns>Цвет типа Color.</returns>
-        public Color GetColorByFlagColor(object ship)
-        {
-            switch (((Ship)ship).FlagColor)
-            {
-                case FlagColor.Red: return Color.Red;
-                case FlagColor.Green: return Color.Green;
-                case FlagColor.Blue: return Color.Blue;
-                case FlagColor.Yellow: return Color.DarkOrange;
-                case FlagColor.Pink: return Color.Magenta;
-
-                default: return Color.Black;
-            }
-        }
-
-
-
-        /// <summary>
-        /// Возвращает цвет типа ConsoleColor по цвету флага корабля.
-        /// </summary>
-        /// <param name="ship">Объект корабля</param>
-        /// <returns>Цвет типа ConsoleColor.</returns>
-        public ConsoleColor GetConsoleColorByFlagColor(object ship)
-        {
-            switch (((Ship)ship).FlagColor)
-            {
-                case FlagColor.Red: return ConsoleColor.Red;
-                case FlagColor.Green: return ConsoleColor.Green;
-                case FlagColor.Blue: return ConsoleColor.Blue;
-                case FlagColor.Yellow: return ConsoleColor.Yellow;
-                case FlagColor.Pink: return ConsoleColor.Magenta;
-
-                default: return ConsoleColor.Gray;
             }
         }
 

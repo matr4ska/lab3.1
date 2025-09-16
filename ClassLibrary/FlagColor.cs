@@ -1,6 +1,6 @@
 ﻿
 
-namespace Model
+namespace ClassLibrary
 {
     public enum FlagColor
     {

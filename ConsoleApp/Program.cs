@@ -73,7 +73,7 @@ while (true)
             while (result == false || shipIndex > logic.GetShipsList().Count || shipIndex < 1);
 
             Console.Clear();
-            Console.WriteLine($"Корабль {logic.GetShipsList()[shipIndex - 1].GetType().GetProperty("Name").GetValue(logic.GetShipsList()[shipIndex - 1])} потоплен!");
+            Console.WriteLine($"Корабль {logic.GetShipsList()[shipIndex - 1].Name} потоплен!");
             logic.DeleteShip(logic.GetShipsList()[shipIndex - 1]);
             Console.ReadKey();
             break;
@@ -115,8 +115,8 @@ while (true)
             Console.Clear();
             logic.ChangeShipAttributes(logic.GetShipsList()[shipIndex - 1], shipName, logic.GetColorFlagNames()[colorIndex]);
             Console.WriteLine("Корабль изменен:");
-            Console.Write($"{logic.GetShipsList()[shipIndex - 1].GetType().GetProperty("Name").GetValue(logic.GetShipsList()[shipIndex - 1])} - ");
-            Console.Write(logic.GetShipsList()[shipIndex - 1].GetType().GetProperty("FlagColor").GetValue(logic.GetShipsList()[shipIndex - 1]));
+            Console.Write($"{logic.GetShipsList()[shipIndex - 1].Name} - ");
+            Console.Write(logic.GetShipsList()[shipIndex - 1].FlagColor);
             Console.WriteLine();
             Console.ReadKey();
             break;
@@ -129,14 +129,14 @@ while (true)
             while (logic.GetShipsInBattleList().Count > 1)
             {
                 Console.Clear();
-                Console.WriteLine($"Ход {logic.GetTurnShip().GetType().GetProperty("Name").GetValue(logic.GetTurnShip())}");
+                Console.WriteLine($"Ход {logic.GetTurnShip().Name}");
                 Console.WriteLine();
                 for (int i = 0; i < logic.GetShipsInBattleList().Count(); i++)
                 {
-                    Console.ForegroundColor = logic.GetConsoleColorByFlagColor(logic.GetShipsInBattleList()[i]);
-                    Console.Write($"{i + 1} - {logic.GetShipsInBattleList()[i].GetType().GetProperty("Hp").GetValue(logic.GetShipsInBattleList()[i])} HP - ");
-                    Console.Write($"{logic.GetShipsInBattleList()[i].GetType().GetProperty("Name").GetValue(logic.GetShipsInBattleList()[i])} - ");
-                    Console.Write(logic.GetShipsInBattleList()[i].GetType().GetProperty("FlagColor").GetValue(logic.GetShipsInBattleList()[i]));
+                    Console.ForegroundColor = GetConsoleColorByFlagColor(logic.GetShipsInBattleList()[i]);
+                    Console.Write($"{i + 1} - {logic.GetShipsInBattleList()[i].Hp} HP - ");
+                    Console.Write($"{logic.GetShipsInBattleList()[i].Name} - ");
+                    Console.Write(logic.GetShipsInBattleList()[i].FlagColor);
                     Console.WriteLine();
                     Console.ResetColor();
                 }
@@ -171,7 +171,7 @@ while (true)
 
             Console.Clear();
             logic.GetTurnShip();
-            Console.WriteLine($"Победа за {logic.GetTurnShip().GetType().GetProperty("Name").GetValue(logic.GetTurnShip())}!!!");
+            Console.WriteLine($"Победа за {logic.GetTurnShip().Name}!!!");
             Console.ReadKey();
             break;
 
@@ -183,17 +183,36 @@ while (true)
 
 
 
-
-
 void ShowShipsList()
 {
     for (int i = 0; i < logic.GetShipsList().Count(); i++)
     {
-        Console.ForegroundColor = logic.GetConsoleColorByFlagColor(logic.GetShipsList()[i]);
-        Console.Write($"{i + 1} - {logic.GetShipsList()[i].GetType().GetProperty("Hp").GetValue(logic.GetShipsList()[i])} HP - ");
-        Console.Write($"{logic.GetShipsList()[i].GetType().GetProperty("Name").GetValue(logic.GetShipsList()[i])} - ");
-        Console.Write(logic.GetShipsList()[i].GetType().GetProperty("FlagColor").GetValue(logic.GetShipsList()[i]));
+        Console.ForegroundColor = GetConsoleColorByFlagColor(logic.GetShipsList()[i]);
+        Console.Write($"{i + 1} - {logic.GetShipsList()[i].Hp} HP - ");
+        Console.Write($"{logic.GetShipsList()[i].Name} - ");
+        Console.Write(logic.GetShipsList()[i].FlagColor);
         Console.WriteLine();
         Console.ResetColor();
+    }
+}
+
+
+
+/// <summary>
+/// Возвращает цвет типа ConsoleColor по цвету флага корабля.
+/// </summary>
+/// <param name="ship">Объект корабля</param>
+/// <returns>Цвет типа ConsoleColor.</returns>
+ConsoleColor GetConsoleColorByFlagColor(object ship)
+{
+    switch (((Ship)ship).FlagColor)
+    {
+        case FlagColor.Red: return ConsoleColor.Red;
+        case FlagColor.Green: return ConsoleColor.Green;
+        case FlagColor.Blue: return ConsoleColor.Blue;
+        case FlagColor.Yellow: return ConsoleColor.Yellow;
+        case FlagColor.Pink: return ConsoleColor.Magenta;
+
+        default: return ConsoleColor.Gray;
     }
 }

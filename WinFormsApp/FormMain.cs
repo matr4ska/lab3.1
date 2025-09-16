@@ -116,11 +116,11 @@ namespace WinFormsApp
                 ListViewItem listViewItem = new ListViewItem();
                 listViewItem.Tag = ship;
 
-                listViewItem.SubItems[0].Text = logic.GetShip(ship).GetType().GetProperty("Hp").GetValue(ship).ToString();
-                listViewItem.SubItems.Add(logic.GetShip(ship).GetType().GetProperty("Name").GetValue(ship).ToString());
-                listViewItem.SubItems.Add(logic.GetShip(ship).GetType().GetProperty("FlagColor").GetValue(ship).ToString());
+                listViewItem.SubItems[0].Text = logic.GetShip(ship).Hp.ToString();
+                listViewItem.SubItems.Add(logic.GetShip(ship).Name.ToString());
+                listViewItem.SubItems.Add(logic.GetShip(ship).FlagColor.ToString());
 
-                listViewItem.ForeColor = logic.GetColorByFlagColor(ship);
+                listViewItem.ForeColor = GetColorByFlagColor(ship);
 
                 ListViewMain.Items.Add(listViewItem);
             }
@@ -138,6 +138,27 @@ namespace WinFormsApp
             Logic logic = (Logic)DataContext;
 
             MessageBox.Show(logic.GetHelpText());
+        }
+
+
+
+        /// <summary>
+        /// Возвращает цвет типа Color по цвету флага корабля.
+        /// </summary>
+        /// <param name="ship">Объект корабля</param>
+        /// <returns>Цвет типа Color.</returns>
+        private Color GetColorByFlagColor(object ship)
+        {
+            switch (((Ship)ship).FlagColor)
+            {
+                case FlagColor.Red: return Color.Red;
+                case FlagColor.Green: return Color.Green;
+                case FlagColor.Blue: return Color.Blue;
+                case FlagColor.Yellow: return Color.DarkOrange;
+                case FlagColor.Pink: return Color.Magenta;
+
+                default: return Color.Black;
+            }
         }
     }
 }

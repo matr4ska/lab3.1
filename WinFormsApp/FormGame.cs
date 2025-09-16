@@ -77,16 +77,16 @@ namespace WinFormsApp
                 ListViewItem listViewItem = new ListViewItem();
                 listViewItem.Tag = ship;
 
-                listViewItem.SubItems[0].Text = logic.GetShip(ship).GetType().GetProperty("Hp").GetValue(ship).ToString();
-                listViewItem.SubItems.Add(logic.GetShip(ship).GetType().GetProperty("Name").GetValue(ship).ToString());
-                listViewItem.SubItems.Add(logic.GetShip(ship).GetType().GetProperty("FlagColor").GetValue(ship).ToString());
-                listViewItem.ForeColor = logic.GetColorByFlagColor(ship);
+                listViewItem.SubItems[0].Text = logic.GetShip(ship).Hp.ToString();
+                listViewItem.SubItems.Add(logic.GetShip(ship).Name.ToString());
+                listViewItem.SubItems.Add(logic.GetShip(ship).FlagColor.ToString());
+                listViewItem.ForeColor = GetColorByFlagColor(ship);
 
                 ListViewGame.Items.Add(listViewItem);
 
                 ListViewGame.Items[selectedItemIndex].Selected = true;
                 
-                labelPlayer.Text = $"Ход {logic.GetTurnShip().GetType().GetProperty("Name").GetValue(logic.GetTurnShip())}";
+                labelPlayer.Text = $"Ход {logic.GetTurnShip().Name}";
             }
         }
 
@@ -103,6 +103,27 @@ namespace WinFormsApp
 
             MessageBox.Show($"Победа за {ListViewGame.Items[0].SubItems[1].Text}!!!");
             base.Close();
+        }
+
+
+
+        /// <summary>
+        /// Возвращает цвет типа Color по цвету флага корабля.
+        /// </summary>
+        /// <param name="ship">Объект корабля</param>
+        /// <returns>Цвет типа Color.</returns>
+        public Color GetColorByFlagColor(object ship)
+        {
+            switch (((Ship)ship).FlagColor)
+            {
+                case FlagColor.Red: return Color.Red;
+                case FlagColor.Green: return Color.Green;
+                case FlagColor.Blue: return Color.Blue;
+                case FlagColor.Yellow: return Color.DarkOrange;
+                case FlagColor.Pink: return Color.Magenta;
+
+                default: return Color.Black;
+            }
         }
     }
 }
