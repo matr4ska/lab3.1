@@ -189,6 +189,11 @@ namespace ConsoleApp1
         }
 
 
+
+        /// <summary>
+        /// Выводит на консоли список кораблей.
+        /// </summary>
+        /// <param name="logic">Объект бизнес-логики</param>
         static void ShowShipsList(Logic logic)
         {
             for (int i = 0; i < logic.GetShipsList().Count(); i++)
@@ -207,6 +212,7 @@ namespace ConsoleApp1
         /// <summary>
         /// Возвращает цвет типа ConsoleColor по цвету флага корабля.
         /// </summary>
+        /// <param name="logic">Объект бизнес-логики</param>
         /// <param name="ship">Объект корабля</param>
         /// <returns>Цвет типа ConsoleColor.</returns>
         static ConsoleColor GetConsoleColorByFlagColor(Logic logic, object ship)
