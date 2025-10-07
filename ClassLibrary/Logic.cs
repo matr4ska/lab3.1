@@ -1,23 +1,21 @@
-﻿
+﻿using Model;
+using DataAccessLayer;
+using System.Data.SqlClient;
 
 namespace ClassLibrary
 {
     public class Logic
     {
-        private List<Ship> Ships = new List<Ship>
+        public Logic()
         {
-            new Ship("Vista", FlagColor.Green),
-            new Ship("Kingslayer", FlagColor.Red),
-            new Ship("ObraDinn", FlagColor.Blue)
-        };
+            repository = new DapperRepository<Ship>();
+        }
 
-        private List<Ship> ShipsInBattle = new List<Ship>();
-
+        private IRepository<Ship> repository;
         public delegate void GameOverHandler();
         public event GameOverHandler? GameOverNotify;
 
-
-
+       
         /// <summary>
         /// Создает объект корабля, добавляет его в общий список кораблей.
         /// </summary>
@@ -28,9 +26,16 @@ namespace ClassLibrary
         {
             if (!string.IsNullOrWhiteSpace(name) && flagColor.ToString() != "_No_Color_")
             {
-                Ship ship = new Ship(name, FlagColor.Black);
+                Ship ship = new Ship()
+                {
+                    Name = name,
+                    Hp = 100,
+                    FlagColor = FlagColor.Black,
+                    IsYourTurn = false,
+                };
                 SetFlagColor(ship, flagColor.ToString());
-                Ships.Add(ship);
+
+                repository.Create(ship);
                 return ship;
             }
             return null;
@@ -42,7 +47,11 @@ namespace ClassLibrary
         /// Удаляет объект корабля из общего списка кораблей.
         /// </summary>
         /// <param name="ship">Объект корабля.</param>
-        public void DeleteShip(object ship) => Ships.Remove((Ship)ship);
+        public void DeleteShip(object ship)
+        {
+            Ship _ship = (Ship)ship;
+            repository.Delete(_ship.Id);
+        }
 
 
 
@@ -53,12 +62,7 @@ namespace ClassLibrary
         /// <returns>Объект искомого корабля. Null, если список кораблей пуст.</returns>
         public Ship GetShip(object ship)
         {
-            if (Ships.Count == 0) 
-            { 
-                return null; 
-            }
-
-            return Ships[Ships.IndexOf((Ship)ship)];
+            return repository.GetItem(((Ship)ship).Id);
         }
 
 
@@ -67,7 +71,7 @@ namespace ClassLibrary
         /// Возвращает общий список кораблей.
         /// </summary>
         /// <returns>Общий список кораблей.</returns>
-        public List<Ship> GetShipsList() => Ships;
+        public List<Ship> GetShipsList() => repository.GetAll().ToList();
 
 
 
@@ -75,22 +79,29 @@ namespace ClassLibrary
         /// Возвращает список кораблей с ХП больше нуля (для игры).
         /// </summary>
         /// <returns>Список кораблей с ХП больше нуля.</returns>
-        public List<Ship> GetShipsInBattleList() => ShipsInBattle;
+        public List<Ship> GetShipsInBattleList()
+        {
+            List<Ship> ShipsInBattle = (from ship in repository.GetAll()
+                                 where ship.Hp > 0
+                                 select ship)
+                                 .ToList();
+                                 
+            return ShipsInBattle;                
+        }
 
 
 
         /// <summary>
-        /// Создает новый список кораблей для новой игры.
+        /// Восстанавливает ХП кораблям и определяет, кто ходит первым.
         /// </summary>
         public void InitializeGame()
         {
             GameOverNotify = null;
-            ShipsInBattle.Clear();
 
-            if (Ships.Count != 0)
+            if (GetShipsList().Count > 0)
             {
+                ResetTurns();
                 RecoverHP();
-                ShipsInBattle = (from Ship ship in Ships select ship).ToList();
                 PassTheTurn();
             }
         }
@@ -109,10 +120,16 @@ namespace ClassLibrary
                 return;
 
             if (flagColor == "_No_Color_" || (!string.IsNullOrWhiteSpace(name) && flagColor != "_No_Color_"))
-                Ships[Ships.IndexOf((Ship)ship)].Name = name;
+            {
+                ((Ship)ship).Name = name;
+                repository.Update((Ship)ship);
+            }
 
             if (string.IsNullOrWhiteSpace(name) || (!string.IsNullOrWhiteSpace(name) && flagColor != "_No_Color_"))
+            {
                 SetFlagColor((Ship)ship, flagColor);
+                repository.Update((Ship)ship);
+            }
         }
 
 
@@ -154,12 +171,8 @@ namespace ClassLibrary
         /// <returns>ХП корабля.</returns>
         public void AttackShipHP(object ship)
         {
-            Ships[Ships.IndexOf((Ship)ship)].Hp -= 20;
-            
-            if (Ships[Ships.IndexOf((Ship)ship)].Hp <= 0)
-            {
-                ShipsInBattle.Remove((Ship)ship);
-            }
+            ((Ship)ship).Hp -= 20;
+            repository.Update((Ship)ship);
 
             PassTheTurn();
         }
@@ -173,7 +186,9 @@ namespace ClassLibrary
         /// <returns>ХП корабля.</returns>
         public void HealShipHP(object ship)
         {
-            Ships[Ships.IndexOf((Ship)ship)].Hp += 15;
+            ((Ship)ship).Hp += 15;
+            repository.Update((Ship)ship);
+
             PassTheTurn();
         }
 
@@ -184,7 +199,7 @@ namespace ClassLibrary
         /// </summary>
         public void CheckShipsInBattle()
         {
-            if (ShipsInBattle.Count <= 1)
+            if (GetShipsInBattleList().Count <= 1)
             {
                 PassTheTurn();
                 GameOverNotify?.Invoke();   
@@ -194,28 +209,46 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// Передает ход следующему кораблю (игроку).
+        /// Передает ход следующему кораблю (игроку), забирает ход у предыдущего.
         /// </summary>
         private void PassTheTurn()
         {
-            if (ShipsInBattle.Last().IsYourTurn == true)
+            Ship ship1;
+            Ship ship2;
+
+            if (GetShipsInBattleList().Last().IsYourTurn == true)
             {
-                ShipsInBattle.Last().IsYourTurn = false;
-                ShipsInBattle[0].IsYourTurn = true;
+                ship1 = GetShipsInBattleList().Last();
+                ship1.IsYourTurn = false;
+                repository.Update(ship1);
+
+                ship2 = GetShipsInBattleList()[0];
+                ship2.IsYourTurn = true;
+                repository.Update(ship2);
+
                 return;
             }
 
-            foreach (Ship ship in ShipsInBattle)
+            for(int i = 0; i < GetShipsInBattleList().Count; i++) 
             {
-                if (ship.IsYourTurn == true)
+                if (GetShipsInBattleList()[i].IsYourTurn == true)
                 {
-                    ship.IsYourTurn = false;
-                    ShipsInBattle[ShipsInBattle.IndexOf(ship) + 1].IsYourTurn = true;
+                    ship1 = GetShipsInBattleList()[i];
+                    ship2 = GetShipsInBattleList()[i + 1];
+
+                    ship1.IsYourTurn = false;
+                    repository.Update(ship1);
+
+                    ship2.IsYourTurn = true;
+                    repository.Update(ship2);
+
                     return;
                 }
             }
 
-            ShipsInBattle[0].IsYourTurn = true;
+            ship1 = GetShipsInBattleList()[0];
+            ship1.IsYourTurn = true;
+            repository.Update(ship1);
         }
 
 
@@ -226,7 +259,7 @@ namespace ClassLibrary
         /// <returns>Объект корабля. Null, если корабль не найден.</returns>
         public Ship GetTurnShip()
         {
-            foreach (Ship ship in ShipsInBattle) 
+            foreach (Ship ship in GetShipsInBattleList()) 
             {
                 if (ship.IsYourTurn == true)
                 {
@@ -242,13 +275,28 @@ namespace ClassLibrary
         /// <summary>
         /// Восстанавливает ХП всем кораблям.
         /// </summary>
-        private void RecoverHP()
+        public void RecoverHP()
         {
-            foreach (Ship ship in Ships)
+            foreach (Ship ship in GetShipsList())
             {
                 ship.Hp = 100;
+                repository.Update(ship);     
             }
-        }   
+        }
+
+
+
+        /// <summary>
+        /// Сбрасывает, кто сейчас ходит.
+        /// </summary>
+        public void ResetTurns()
+        {
+            foreach (Ship ship in GetShipsList())
+            {
+                ship.IsYourTurn = false;
+                repository.Update(ship);
+            }
+        }
 
 
 

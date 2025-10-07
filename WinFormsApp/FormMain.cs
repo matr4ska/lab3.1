@@ -1,5 +1,5 @@
 using ClassLibrary;
-
+using Model;
 
 namespace WinFormsApp
 {
@@ -94,9 +94,13 @@ namespace WinFormsApp
         {
             Logic logic = (Logic)DataContext;
 
-            FormGame formGame = new FormGame((Logic)DataContext, ListViewMain);
-            formGame.ShowDialog();
+            if (logic.GetShipsList().Count > 0)
+            {
+                FormGame formGame = new FormGame((Logic)DataContext, ListViewMain);
+                formGame.ShowDialog();
+            }
             
+            logic.ResetTurns();
             UpdateViewListMain();
         }
 

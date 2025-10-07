@@ -1,5 +1,5 @@
 ﻿using ClassLibrary;
-
+using Model;
 
 namespace WinFormsApp
 {
@@ -82,12 +82,13 @@ namespace WinFormsApp
                 listViewItem.SubItems.Add(logic.GetShip(ship).FlagColor.ToString());
                 listViewItem.ForeColor = GetColorByFlagColor(ship);
 
-                ListViewGame.Items.Add(listViewItem);
-
-                ListViewGame.Items[selectedItemIndex].Selected = true;
-                
-                labelPlayer.Text = $"Ход {logic.GetTurnShip().Name}";
+                ListViewGame.Items.Add(listViewItem);     
             }
+
+            if (ListViewGame.Items.Count - 1 < selectedItemIndex) { ListViewGame.Items[0].Selected = true; }
+            else { ListViewGame.Items[selectedItemIndex].Selected = true; }
+
+            labelPlayer.Text = $"Ход {logic.GetTurnShip().Name}";
         }
 
 
@@ -102,6 +103,7 @@ namespace WinFormsApp
             UpdateViewListGame(0);
 
             MessageBox.Show($"Победа за {ListViewGame.Items[0].SubItems[1].Text}!!!");
+
             base.Close();
         }
 

@@ -1,23 +1,19 @@
 ﻿
-
-namespace ClassLibrary
+namespace Model
 {
-    public class Ship
+    public class Ship : IDomainObject
     {
-        public Ship(string name, FlagColor flagColor) 
-        { 
-            Name = name;
-            Hp = 100;
-            FlagColor = flagColor;
-            IsYourTurn = false;
-        }
-
-
+        private int id;
         private string name;
-        private short hp;
+        private int hp;
         private FlagColor flagColor;
         private bool isYourTurn;
 
+        public int Id
+        {
+            get => id;
+            set => id = value;
+        }
 
         public string Name
         {
@@ -25,7 +21,7 @@ namespace ClassLibrary
             set => name = value; 
         }
 
-        public short Hp
+        public int Hp
         {
             get => hp;
             set => hp = value; 

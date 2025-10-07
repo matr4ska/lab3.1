@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="4ebaa359-6a21-419d-81b6-0e4977454546" ChangeDateTime="10/06/2025 14:59:05">
+    <Property Name="ElementName" Value="[dbo].[FK_Ships_FlagColor_ToTable]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[Ships_FlagColor]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_FlagColor]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="9475491d-7536-48a9-8e00-c29b0f252b18" ChangeDateTime="10/06/2025 14:59:54">
+    <Property Name="ElementName" Value="[dbo].[Ships].[FlagColor]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Ships]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="FlagColor_Id" />
+  </Operation>
+</Operations>
