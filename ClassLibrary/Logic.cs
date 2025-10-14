@@ -301,8 +301,9 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// 
+        /// Выводит текст о том, как пользоваться приложением.
         /// </summary>
+        /// <returns>Текст с помощью.</returns>
         public string GetHelpText()
         {
             string result = @"";

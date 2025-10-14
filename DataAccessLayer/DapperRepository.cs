@@ -7,12 +7,11 @@ using static Dapper.SqlMapper;
 
 namespace DataAccessLayer
 {
-    public class DapperRepository<T> : IRepository<T>
-    where T : class, IDomainObject
+    public class DapperRepository<T> : IRepository<Ship> 
+        where T: Ship, IDomainObject
     {
         static string connectionString;
         IDbConnection db;
-
 
         public DapperRepository()
         {
@@ -20,25 +19,25 @@ namespace DataAccessLayer
         }
         
 
-        public IEnumerable<T> GetAll()
+        public IEnumerable<Ship> GetAll()
         {
             using (IDbConnection db = new SqlConnection(connectionString))
-                return db.Query<T>("SELECT * FROM Ships").ToList();
+                return db.Query<Ship>("SELECT * FROM Ships").ToList();
         }
 
-        public T GetItem(int id)
+        public Ship GetItem(int id)
         {
             using (IDbConnection db = new SqlConnection(connectionString))
-                return db.Query<T>("SELECT * FROM Ships WHERE Id = @Id", new { id }).FirstOrDefault();
+                return db.Query<Ship>("SELECT * FROM Ships WHERE Id = @Id", new { id }).FirstOrDefault();
         }
 
-        public void Create(T item)
+        public void Create(Ship item)
         {
             using (IDbConnection db = new SqlConnection(connectionString))
                 db.Execute("INSERT INTO Ships (Name, Hp, FlagColor, IsYourTurn) VALUES (@Name, @Hp, @FlagColor, @IsYourTurn)", item);
         }
 
-        public void Update(T item)
+        public void Update(Ship item)
         {
             using (IDbConnection db = new SqlConnection(connectionString))
                 db.Execute("UPDATE Ships SET Name = @Name, Hp = @Hp, FlagColor = @FlagColor, IsYourTurn = @IsYourTurn WHERE Id = @Id", item);
