@@ -1,12 +1,5 @@
 ﻿using Model;
-using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace DataAccessLayer
 {
@@ -15,7 +8,5 @@ namespace DataAccessLayer
     {
         public Context() : base("ShipsDB") { }
         public DbSet<Ship> Ships { get; set; }
-
-
     }
 }

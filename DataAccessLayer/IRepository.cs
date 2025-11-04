@@ -1,7 +1,6 @@
 ﻿namespace DataAccessLayer
 {
     public interface IRepository<T>
-        where T : class
     {
         /// <summary>
         /// Возвращает список всех сущностей

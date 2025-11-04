@@ -1,6 +1,7 @@
-﻿using Model;
-using DataAccessLayer;
+﻿using DataAccessLayer;
+using Model;
 using System.Data.SqlClient;
+using System.Xml.Linq;
 
 namespace ClassLibrary
 {
@@ -8,20 +9,21 @@ namespace ClassLibrary
     {
         public Logic()
         {
-            repository = new DapperRepository<Ship>();
+            repository = new EntityRepository<Ship>();
         }
 
         private IRepository<Ship> repository;
+
         public delegate void GameOverHandler();
         public event GameOverHandler? GameOverNotify;
 
-       
+
         /// <summary>
         /// Создает объект корабля, добавляет его в общий список кораблей.
         /// </summary>
         /// <param name="name">Название</param>
         /// <param name="flagColor">Цвет</param>
-        /// <returns>Объект корабля. Null, если входные данные некорректны.</returns>
+        /// <returns>Объект корабля. Null, если входные данные некорректны</returns>
         public Ship CreateShip(string name, object flagColor)
         {
             if (!string.IsNullOrWhiteSpace(name) && flagColor.ToString() != "_No_Color_")
@@ -46,7 +48,7 @@ namespace ClassLibrary
         /// <summary>
         /// Удаляет объект корабля из общего списка кораблей.
         /// </summary>
-        /// <param name="ship">Объект корабля.</param>
+        /// <param name="ship">Объект корабля</param>
         public void DeleteShip(object ship)
         {
             Ship _ship = (Ship)ship;
@@ -59,7 +61,7 @@ namespace ClassLibrary
         /// Возвращает объект корабля.
         /// </summary>
         /// <param name="ship"></param>
-        /// <returns>Объект искомого корабля. Null, если список кораблей пуст.</returns>
+        /// <returns>Объект искомого корабля. Null, если список кораблей пуст</returns>
         public Ship GetShip(object ship)
         {
             return repository.GetItem(((Ship)ship).Id);
@@ -68,17 +70,17 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// Возвращает общий список кораблей.
+        /// Возвращает список всех кораблей.
         /// </summary>
-        /// <returns>Общий список кораблей.</returns>
+        /// <returns>Список всех кораблей</returns>
         public List<Ship> GetShipsList() => repository.GetAll().ToList();
 
 
 
         /// <summary>
-        /// Возвращает список кораблей с ХП больше нуля (для игры).
+        /// Возвращает список кораблей с ХП больше нуля.
         /// </summary>
-        /// <returns>Список кораблей с ХП больше нуля.</returns>
+        /// <returns>Список кораблей с ХП больше нуля</returns>
         public List<Ship> GetShipsInBattleList()
         {
             List<Ship> ShipsInBattle = (from ship in repository.GetAll()
@@ -92,7 +94,7 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// Восстанавливает ХП кораблям и определяет, кто ходит первым.
+        /// Делает все нужное для старта новой игры.
         /// </summary>
         public void InitializeGame()
         {
@@ -109,23 +111,29 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// Меняет название и цвет флага корабля.
+        /// Меняет название корабля.
         /// </summary>
         /// <param name="ship">Объект корабля</param>
         /// <param name="name">Новое название корабля</param>
-        /// <param name="flagColor">Название цвета флага</param>
-        public void ChangeShipAttributes(object ship, string name, string flagColor)
+        public void ChangeShipName(object ship, string name)
         {
-            if (string.IsNullOrWhiteSpace(name) && flagColor == "_No_Color_")
-                return;
-
-            if (flagColor == "_No_Color_" || (!string.IsNullOrWhiteSpace(name) && flagColor != "_No_Color_"))
+            if (!string.IsNullOrWhiteSpace(name))
             {
                 ((Ship)ship).Name = name;
                 repository.Update((Ship)ship);
             }
+        }
 
-            if (string.IsNullOrWhiteSpace(name) || (!string.IsNullOrWhiteSpace(name) && flagColor != "_No_Color_"))
+
+
+        /// <summary>
+        /// Меняет цвет флага корабля.
+        /// </summary>
+        /// <param name="ship">Объект корабля</param>
+        /// <param name="flagColor">Название нового цвета флага корабля</param>
+        public void ChangeShipFlagColor(object ship, string flagColor)
+        {
+            if (flagColor != "_No_Color_")
             {
                 SetFlagColor((Ship)ship, flagColor);
                 repository.Update((Ship)ship);
@@ -135,9 +143,9 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// Возвращает список названий возможных цветов флага из перечисления цветов флага.
+        /// Возвращает список названий всех цветов флага.
         /// </summary>
-        /// <returns>Строковый список возможных цветов флага.</returns>
+        /// <returns>Список строковых названий всех цветов флага</returns>
         public List<string> GetColorFlagNames() => Enum.GetNames(typeof(FlagColor)).ToList();
 
 
@@ -165,53 +173,46 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// Возвращает ХП корабля после атаки на него, соответственно меняет кораблю ХП.
+        /// Убавляет кораблю ХП.
         /// </summary>
         /// <param name="ship">Объект корабля</param>
-        /// <returns>ХП корабля.</returns>
         public void AttackShipHP(object ship)
         {
-            ((Ship)ship).Hp -= 20;
-            repository.Update((Ship)ship);
-
-            PassTheTurn();
+            ((Ship)ship).Hp -= 20;            
+            repository.Update((Ship)ship);        
         }
 
 
 
         /// <summary>
-        /// Возвращает ХП корабля после его лечения, соответственно меняет кораблю ХП.
+        /// Прибавляет кораблю ХП.
         /// </summary>
         /// <param name="ship">Объект корабля</param>
-        /// <returns>ХП корабля.</returns>
         public void HealShipHP(object ship)
         {
-            ((Ship)ship).Hp += 15;
-            repository.Update((Ship)ship);
-
-            PassTheTurn();
+            ((Ship)ship).Hp += 10;
+            repository.Update((Ship)ship);  
         }
 
 
 
         /// <summary>
-        /// Проверяет, остался ли в игре один единственный корабль. Вызывает событие завершения игры.
+        /// Проверяет, остался ли в игре один единственный корабль. Если True - вызывает событие завершения игры.
         /// </summary>
-        public void CheckShipsInBattle()
+        public void CheckIfGameIsOver()
         {
             if (GetShipsInBattleList().Count <= 1)
             {
-                PassTheTurn();
-                GameOverNotify?.Invoke();   
+                GameOverNotify?.Invoke();
             }
         }
 
 
 
         /// <summary>
-        /// Передает ход следующему кораблю (игроку), забирает ход у предыдущего.
+        /// Определяет, какого корабля сейчас ход.
         /// </summary>
-        private void PassTheTurn()
+        public void PassTheTurn()
         {
             Ship ship1;
             Ship ship2;

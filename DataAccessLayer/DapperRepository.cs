@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Model;
 using System.Data;
 using System.Data.SqlClient;
 using static Dapper.SqlMapper;
@@ -7,8 +6,7 @@ using static Dapper.SqlMapper;
 
 namespace DataAccessLayer
 {
-    public class DapperRepository<T> : IRepository<Ship> 
-        where T: Ship, IDomainObject
+    public class DapperRepository<Ship> : IRepository<Ship> 
     {
         static string connectionString;
         IDbConnection db;
@@ -18,7 +16,6 @@ namespace DataAccessLayer
             connectionString = "Server=(LocalDB)\\MSSQLLocalDB; Database=ShipsDB;";    
         }
         
-
         public IEnumerable<Ship> GetAll()
         {
             using (IDbConnection db = new SqlConnection(connectionString))

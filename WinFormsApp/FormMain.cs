@@ -76,7 +76,8 @@ namespace WinFormsApp
 
             foreach (ListViewItem selectedItem in ListViewMain.SelectedItems)
             {
-                logic.ChangeShipAttributes(selectedItem.Tag, TextBoxName.Text, ComboBoxColor.SelectedItem.ToString());
+                logic.ChangeShipName(selectedItem.Tag, TextBoxName.Text);
+                logic.ChangeShipFlagColor(selectedItem.Tag, ComboBoxColor.SelectedItem.ToString());
             }
 
             TextBoxName.Text = "";

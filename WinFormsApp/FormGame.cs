@@ -1,4 +1,5 @@
 ﻿using ClassLibrary;
+using Microsoft.VisualBasic.Logging;
 using Model;
 
 namespace WinFormsApp
@@ -19,8 +20,11 @@ namespace WinFormsApp
             ListViewGame.Columns.Add("Color", -2);
 
             logic.InitializeGame();
-            logic.GameOverNotify += EndGame;
-            UpdateViewListGame(0);
+
+            logic.GameOverNotify += ShowGameOverMessage;
+            logic.GameOverNotify += CloseGameScreen;
+
+            UpdateListViewGame(0);
         }
 
 
@@ -37,8 +41,7 @@ namespace WinFormsApp
             foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
             {
                 logic.AttackShipHP(selectedItem.Tag);
-                UpdateViewListGame(ListViewGame.Items.IndexOf(selectedItem));
-                logic.CheckShipsInBattle();
+                InitializeNextTurn(selectedItem);
             }
         }
 
@@ -56,17 +59,32 @@ namespace WinFormsApp
             foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
             {
                 logic.HealShipHP(selectedItem.Tag);
-                UpdateViewListGame(ListViewGame.Items.IndexOf(selectedItem));
-                logic.CheckShipsInBattle();
+                InitializeNextTurn(selectedItem);
             }
         }
 
 
 
         /// <summary>
-        /// Актуализирует отображение объектов в ListView.
+        /// Делает все нужное для инициализации след. хода.
         /// </summary>
-        private void UpdateViewListGame(int selectedItemIndex)
+        /// <param name="selectedItem"></param>
+        private void InitializeNextTurn(ListViewItem selectedItem)
+        {
+            Logic logic = (Logic)DataContext;
+
+            logic.PassTheTurn();
+            UpdateListViewGame(ListViewGame.Items.IndexOf(selectedItem));
+            logic.CheckIfGameIsOver();
+        }
+
+
+
+        /// <summary>
+        /// Актуализирует отображение объектов в ListViewGame.
+        /// </summary>
+        /// <param name="selectedItemIndex">Индекс выделенного в ListViewGame корабля</param>
+        private void UpdateListViewGame(int selectedItemIndex)
         {
             Logic logic = (Logic)DataContext;
 
@@ -96,14 +114,18 @@ namespace WinFormsApp
         /// <summary>
         /// Выводит победное сообщение и закрывает окно игры.
         /// </summary>
-        private void EndGame()
+        private void ShowGameOverMessage()
         {
-            Logic logic = (Logic)DataContext;
-
-            UpdateViewListGame(0);
-
             MessageBox.Show($"Победа за {ListViewGame.Items[0].SubItems[1].Text}!!!");
+        }
 
+
+
+        /// <summary>
+        /// Закрывает окно игры.
+        /// </summary>
+        private void CloseGameScreen()
+        {
             base.Close();
         }
 
