@@ -66,7 +66,7 @@ namespace WinFormsApp
 
 
         /// <summary>
-        /// Делает все нужное для инициализации след. хода.
+        /// Делает все нужное для инициализации следующего хода.
         /// </summary>
         /// <param name="selectedItem"></param>
         private void InitializeNextTurn(ListViewItem selectedItem)
