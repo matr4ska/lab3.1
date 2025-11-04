@@ -1,7 +1,5 @@
 ﻿using DataAccessLayer;
 using Model;
-using System.Data.SqlClient;
-using System.Xml.Linq;
 
 namespace ClassLibrary
 {
@@ -16,6 +14,9 @@ namespace ClassLibrary
 
         public delegate void GameOverHandler();
         public event GameOverHandler? GameOverNotify;
+
+        public delegate void NewGameHandler();
+        public event NewGameHandler? NewGameNotify;
 
 
         /// <summary>
@@ -94,18 +95,16 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// Делает все нужное для старта новой игры.
+        /// Сбрасывает все параметры прошлой игры для новой игры.
         /// </summary>
-        public void InitializeGame()
+        public void InitializeNewGame()
         {
             GameOverNotify = null;
+            NewGameNotify.Invoke();
 
-            if (GetShipsList().Count > 0)
-            {
-                ResetTurns();
-                RecoverHP();
-                PassTheTurn();
-            }
+            ResetTurns();
+            RecoverHP();
+            PassTheTurn();
         }
 
 

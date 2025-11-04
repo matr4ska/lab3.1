@@ -8,15 +8,36 @@ namespace WinFormsApp
         public FormMain()
         {
             InitializeComponent();
+
             DataContext = new Logic();
             Logic logic = (Logic)DataContext;
 
+            InitializeListViewMain();
+            InitializeComboBoxColor();
+        }
+
+
+        /// <summary>
+        /// Создает названия столбцов в ListViewMain.
+        /// </summary>
+        private void InitializeListViewMain()
+        {
             ListViewMain.View = View.Details;
             ListViewMain.Columns.Add("HP", -2);
             ListViewMain.Columns.Add("Name", -2);
             ListViewMain.Columns.Add("Color", -2);
 
             UpdateViewListMain();
+        }
+
+
+
+        /// <summary>
+        /// Создает combobox с названиями цветов флагов кораблей.
+        /// </summary>
+        private void InitializeComboBoxColor()
+        {
+            Logic logic = (Logic)DataContext;
 
             foreach (var item in logic.GetColorFlagNames())
             {
@@ -95,13 +116,16 @@ namespace WinFormsApp
         {
             Logic logic = (Logic)DataContext;
 
-            if (logic.GetShipsList().Count > 0)
+            if (logic.GetShipsList().Count > 1)
             {
                 FormGame formGame = new FormGame((Logic)DataContext, ListViewMain);
                 formGame.ShowDialog();
             }
-            
-            logic.ResetTurns();
+            else
+            {
+                MessageBox.Show("Нужно больше кораблей, капитан!!");
+            }
+
             UpdateViewListMain();
         }
 

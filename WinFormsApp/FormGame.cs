@@ -1,5 +1,4 @@
 ﻿using ClassLibrary;
-using Microsoft.VisualBasic.Logging;
 using Model;
 
 namespace WinFormsApp
@@ -13,22 +12,42 @@ namespace WinFormsApp
             DataContext = logic;
             logic = (Logic)DataContext;
 
+            InitializeListViewMain();
+
+            logic.InitializeNewGame();
+            UpdateListViewGame(0);
+
+            SetGameOverNotify();   
+        }
+
+
+        /// <summary>
+        /// Создает названия столбцов в ListViewGame.
+        /// </summary>
+        private void InitializeListViewMain()
+        {
             ListViewGame.Items.Clear();
             ListViewGame.View = View.Details;
             ListViewGame.Columns.Add("HP", -2);
             ListViewGame.Columns.Add("Name", -2);
             ListViewGame.Columns.Add("Color", -2);
-
-            logic.InitializeGame();
-
-            logic.GameOverNotify += ShowGameOverMessage;
-            logic.GameOverNotify += CloseGameScreen;
-
-            UpdateListViewGame(0);
         }
 
 
-        
+
+        /// <summary>
+        /// Привязывает методы к уведомлению о конце игры.
+        /// </summary>
+        private void SetGameOverNotify()
+        {
+            Logic logic = (Logic)DataContext;
+
+            logic.GameOverNotify += ShowGameOverMessage;
+            logic.GameOverNotify += CloseGameScreen;
+        }
+
+
+
         /// <summary>
         /// Кнопка для понижения ХП выбранного корабля.
         /// </summary>
@@ -41,7 +60,9 @@ namespace WinFormsApp
             foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
             {
                 logic.AttackShipHP(selectedItem.Tag);
-                InitializeNextTurn(selectedItem);
+                logic.PassTheTurn();
+                UpdateListViewGame(ListViewGame.Items.IndexOf(selectedItem));    
+                logic.CheckIfGameIsOver();
             }
         }
 
@@ -59,29 +80,15 @@ namespace WinFormsApp
             foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
             {
                 logic.HealShipHP(selectedItem.Tag);
-                InitializeNextTurn(selectedItem);
+                logic.PassTheTurn();
+                UpdateListViewGame(ListViewGame.Items.IndexOf(selectedItem));
             }
         }
 
 
 
         /// <summary>
-        /// Делает все нужное для инициализации следующего хода.
-        /// </summary>
-        /// <param name="selectedItem"></param>
-        private void InitializeNextTurn(ListViewItem selectedItem)
-        {
-            Logic logic = (Logic)DataContext;
-
-            logic.PassTheTurn();
-            UpdateListViewGame(ListViewGame.Items.IndexOf(selectedItem));
-            logic.CheckIfGameIsOver();
-        }
-
-
-
-        /// <summary>
-        /// Актуализирует отображение объектов в ListViewGame.
+        /// Актуализирует список кораблей в ListViewGame.
         /// </summary>
         /// <param name="selectedItemIndex">Индекс выделенного в ListViewGame корабля</param>
         private void UpdateListViewGame(int selectedItemIndex)
@@ -103,10 +110,27 @@ namespace WinFormsApp
                 ListViewGame.Items.Add(listViewItem);     
             }
 
-            if (ListViewGame.Items.Count - 1 < selectedItemIndex) { ListViewGame.Items[0].Selected = true; }
-            else { ListViewGame.Items[selectedItemIndex].Selected = true; }
+            SetSelectedItemInListView(ListViewGame, selectedItemIndex);
 
             labelPlayer.Text = $"Ход {logic.GetTurnShip().Name}";
+        }
+
+
+
+        /// <summary>
+        /// Выделяет нужный item по его индексу в ListView.
+        /// </summary>
+        /// <param name="selectedItemIndex">Индекс выделенного item.</param>
+        private void SetSelectedItemInListView(ListView listView, int selectedItemIndex)
+        {
+            if (listView.Items.Count - 1 < selectedItemIndex) 
+            { 
+                listView.Items[listView.Items.Count - 1].Selected = true; 
+            }
+            else 
+            { 
+                listView.Items[selectedItemIndex].Selected = true; 
+            }
         }
 
 
@@ -132,7 +156,7 @@ namespace WinFormsApp
 
 
         /// <summary>
-        /// Возвращает цвет типа Color по цвету флага корабля.
+        /// Возвращает цвет типа Color по свойству FlagColor объекта Ship.
         /// </summary>
         /// <param name="ship">Объект корабля</param>
         /// <returns>Цвет типа Color.</returns>
