@@ -1,5 +1,8 @@
 using ClassLibrary;
+using DataAccessLayer;
 using Model;
+using Microsoft.Extensions.DependencyInjection;
+
 
 namespace WinFormsApp
 {
@@ -9,12 +12,16 @@ namespace WinFormsApp
         {
             InitializeComponent();
 
-            DataContext = new Logic();
-            Logic logic = (Logic)DataContext;
+            configModule = new ConfigModule();
+            shipManager = configModule.serviceProvider.GetService<ShipManager>();
 
             InitializeListViewMain();
             InitializeComboBoxColor();
         }
+
+        private ConfigModule configModule;
+        private ShipManager shipManager;
+
 
 
         /// <summary>
@@ -37,9 +44,7 @@ namespace WinFormsApp
         /// </summary>
         private void InitializeComboBoxColor()
         {
-            Logic logic = (Logic)DataContext;
-
-            foreach (var item in logic.GetColorFlagNames())
+            foreach (var item in FlagColorManager.GetFlagColorNames())
             {
                 ComboBoxColor.Items.Add(item);
             }
@@ -56,10 +61,8 @@ namespace WinFormsApp
         /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonCreateShip_Click(object sender, EventArgs e)
         {
-            Logic logic = (Logic)DataContext;
-
             ListViewItem listViewItem = new ListViewItem();
-            listViewItem.Tag = logic.CreateShip(TextBoxName.Text, ComboBoxColor.SelectedItem);
+            listViewItem.Tag = shipManager.CreateShip(TextBoxName.Text, ComboBoxColor.SelectedItem);
             TextBoxName.Text = "";
 
             UpdateViewListMain();   
@@ -74,11 +77,9 @@ namespace WinFormsApp
         /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonDeleteShip_Click(object sender, EventArgs e)
         {
-            Logic logic = (Logic)DataContext;
-
             foreach (ListViewItem selectedItem in ListViewMain.SelectedItems)
             {
-                logic.DeleteShip(selectedItem.Tag);
+                shipManager.DeleteShip(selectedItem.Tag);
 
                 UpdateViewListMain();
             }
@@ -93,12 +94,10 @@ namespace WinFormsApp
         /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonChangeShipStats_Click(object sender, EventArgs e)
         {
-            Logic logic = (Logic)DataContext;
-
             foreach (ListViewItem selectedItem in ListViewMain.SelectedItems)
             {
-                logic.ChangeShipName(selectedItem.Tag, TextBoxName.Text);
-                logic.ChangeShipFlagColor(selectedItem.Tag, ComboBoxColor.SelectedItem.ToString());
+                shipManager.ChangeShipName(selectedItem.Tag, TextBoxName.Text);
+                shipManager.ChangeFlagColor(selectedItem.Tag, ComboBoxColor.SelectedItem.ToString());
             }
 
             TextBoxName.Text = "";
@@ -114,11 +113,9 @@ namespace WinFormsApp
         /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonStartGame_Click(object sender, EventArgs e)
         {
-            Logic logic = (Logic)DataContext;
-
-            if (logic.GetShipsList().Count > 1)
+            if (shipManager.GetShipsList().Count > 1)
             {
-                FormGame formGame = new FormGame((Logic)DataContext, ListViewMain);
+                FormGame formGame = new FormGame(configModule, ListViewMain);
                 formGame.ShowDialog();
             }
             else
@@ -136,18 +133,16 @@ namespace WinFormsApp
         /// </summary>
         private void UpdateViewListMain()
         {
-            Logic logic = (Logic)DataContext;
-
             ListViewMain.Items.Clear();
 
-            foreach (var ship in logic.GetShipsList())
+            foreach (var ship in shipManager.GetShipsList())
             {
                 ListViewItem listViewItem = new ListViewItem();
                 listViewItem.Tag = ship;
 
-                listViewItem.SubItems[0].Text = logic.GetShip(ship).Hp.ToString();
-                listViewItem.SubItems.Add(logic.GetShip(ship).Name.ToString());
-                listViewItem.SubItems.Add(logic.GetShip(ship).FlagColor.ToString());
+                listViewItem.SubItems[0].Text = shipManager.GetShip(ship).Hp.ToString();
+                listViewItem.SubItems.Add(shipManager.GetShip(ship).Name.ToString());
+                listViewItem.SubItems.Add(shipManager.GetShip(ship).FlagColor.ToString());
 
                 listViewItem.ForeColor = GetColorByFlagColor(ship);
 
@@ -164,9 +159,7 @@ namespace WinFormsApp
         /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void buttonHelp_Click(object sender, EventArgs e)
         {
-            Logic logic = (Logic)DataContext;
-
-            MessageBox.Show(logic.GetHelpText());
+            MessageBox.Show(Helper.GetHelpText());
         }
 
 

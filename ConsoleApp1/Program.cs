@@ -1,10 +1,11 @@
 ﻿using ClassLibrary;
+using Microsoft.Extensions.DependencyInjection;
 using Model;
 
 
 namespace ConsoleApp1
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -16,13 +17,17 @@ namespace ConsoleApp1
             string? shipColor;
             bool result;
 
-            Logic logic = new Logic();
+            ConfigModule configModule = new ConfigModule();
+            ShipManager shipManager = configModule.serviceProvider.GetService<ShipManager>();
+            ShipHPManager shipHPManager = configModule.serviceProvider.GetService<ShipHPManager>();
+            ShipIsYourTurnManager shipIsYourTurnManager = configModule.serviceProvider.GetService<ShipIsYourTurnManager>();
+            BattleManager battleManager = configModule.serviceProvider.GetService<BattleManager>();
 
             while (true)
             {
                 Console.Clear();
                 Console.WriteLine("Ваш флот:");
-                ShowShipsList(logic);
+                ShowShipsList(shipManager);
 
                 Console.WriteLine();
                 Console.WriteLine("Делай корабли, йохохо");
@@ -47,9 +52,9 @@ namespace ConsoleApp1
 
                         Console.Clear();
                         Console.WriteLine("Цвет флага корабля:");
-                        for (int i = 1; i < logic.GetColorFlagNames().Count; i++)
+                        for (int i = 1; i < FlagColorManager.GetFlagColorNames().Count; i++)
                         {
-                            Console.WriteLine($"{i} - {logic.GetColorFlagNames()[i]}");
+                            Console.WriteLine($"{i} - {FlagColorManager.GetFlagColorNames()[i]}");
                         }
 
                         do
@@ -57,10 +62,10 @@ namespace ConsoleApp1
                             shipColor = Console.ReadLine()?.Replace(" ", "");
                             result = byte.TryParse(shipColor, out colorIndex);
                         }
-                        while (result == false || colorIndex > logic.GetColorFlagNames().Count - 1 || colorIndex < 1);
+                        while (result == false || colorIndex > FlagColorManager.GetFlagColorNames().Count - 1 || colorIndex < 1);
 
                         Console.Clear();
-                        logic.CreateShip(shipName, logic.GetColorFlagNames()[colorIndex]);
+                        shipManager.CreateShip(shipName, FlagColorManager.GetFlagColorNames()[colorIndex]);
                         Console.WriteLine($"{shipName} построен!");
                         Console.ReadKey();
                         break;
@@ -68,7 +73,7 @@ namespace ConsoleApp1
 
 
                     case "2":
-                        ShowShipsList(logic);
+                        ShowShipsList(shipManager);
 
                         Console.WriteLine();
                         Console.WriteLine("Какой корабль удалить?");
@@ -77,18 +82,18 @@ namespace ConsoleApp1
                             input = Console.ReadLine()?.Replace(" ", "");
                             result = byte.TryParse(input, out shipIndex);
                         }
-                        while (result == false || shipIndex > logic.GetShipsList().Count || shipIndex < 1);
+                        while (result == false || shipIndex > shipManager.GetShipsList().Count || shipIndex < 1);
 
                         Console.Clear();
-                        Console.WriteLine($"Корабль {logic.GetShipsList()[shipIndex - 1].Name} потоплен!");
-                        logic.DeleteShip(logic.GetShipsList()[shipIndex - 1]);
+                        Console.WriteLine($"Корабль {shipManager.GetShipsList()[shipIndex - 1].Name} потоплен!");
+                        shipManager.DeleteShip(shipManager.GetShipsList()[shipIndex - 1]);
                         Console.ReadKey();
                         break;
 
 
 
                     case "3":
-                        ShowShipsList(logic);
+                        ShowShipsList(shipManager);
 
                         Console.WriteLine();
                         Console.WriteLine("Выберите корабль (по номеру)");
@@ -97,7 +102,7 @@ namespace ConsoleApp1
                             input = Console.ReadLine()?.Replace(" ", "");
                             result = byte.TryParse(input, out shipIndex);
                         }
-                        while (result == false || shipIndex > logic.GetShipsList().Count || shipIndex < 1);
+                        while (result == false || shipIndex > shipManager.GetShipsList().Count || shipIndex < 1);
 
                         Console.WriteLine();
                         Console.WriteLine("Новое название корабля:");
@@ -107,9 +112,9 @@ namespace ConsoleApp1
                         Console.WriteLine();
                         Console.WriteLine("Цвет флага корабля:");
                         Console.WriteLine("0 - не менять");
-                        for (int i = 1; i < logic.GetColorFlagNames().Count; i++)
+                        for (int i = 1; i < FlagColorManager.GetFlagColorNames().Count; i++)
                         {
-                            Console.WriteLine($"{i} - {logic.GetColorFlagNames()[i]}");
+                            Console.WriteLine($"{i} - {FlagColorManager.GetFlagColorNames()[i]}");
                         }
 
                         do
@@ -117,13 +122,14 @@ namespace ConsoleApp1
                             shipColor = Console.ReadLine()?.Replace(" ", "");
                             result = byte.TryParse(shipColor, out colorIndex);
                         }
-                        while (result == false || colorIndex > logic.GetColorFlagNames().Count - 1);
+                        while (result == false || colorIndex > FlagColorManager.GetFlagColorNames().Count - 1);
 
                         Console.Clear();
-                        logic.ChangeShipAttributes(logic.GetShipsList()[shipIndex - 1], shipName, logic.GetColorFlagNames()[colorIndex]);
+                        shipManager.ChangeShipName(shipManager.GetShipsList()[shipIndex - 1], shipName);
+                        shipManager.ChangeFlagColor(shipManager.GetShipsList()[shipIndex - 1], FlagColorManager.GetFlagColorNames()[colorIndex]);
                         Console.WriteLine("Корабль изменен:");
-                        Console.Write($"{logic.GetShipsList()[shipIndex - 1].Name} - ");
-                        Console.Write(logic.GetShipsList()[shipIndex - 1].FlagColor);
+                        Console.Write($"{shipManager.GetShipsList()[shipIndex - 1].Name} - ");
+                        Console.Write(shipManager.GetShipsList()[shipIndex - 1].FlagColor);
                         Console.WriteLine();
                         Console.ReadKey();
                         break;
@@ -131,19 +137,19 @@ namespace ConsoleApp1
 
 
                     case "4":
-                        logic.InitializeGame();
+                        battleManager.InitializeNewBattle();
 
-                        while (logic.GetShipsInBattleList().Count > 1)
+                        while (shipManager.GetNotDeadShipsList().Count > 1)
                         {
                             Console.Clear();
-                            Console.WriteLine($"Ход {logic.GetTurnShip().Name}");
+                            Console.WriteLine($"Ход {shipIsYourTurnManager.GetTurnShip().Name}");
                             Console.WriteLine();
-                            for (int i = 0; i < logic.GetShipsInBattleList().Count(); i++)
+                            for (int i = 0; i < shipManager.GetNotDeadShipsList().Count(); i++)
                             {
-                                Console.ForegroundColor = GetConsoleColorByFlagColor(logic, logic.GetShipsInBattleList()[i]);
-                                Console.Write($"{i + 1} - {logic.GetShipsInBattleList()[i].Hp} HP - ");
-                                Console.Write($"{logic.GetShipsInBattleList()[i].Name} - ");
-                                Console.Write(logic.GetShipsInBattleList()[i].FlagColor);
+                                Console.ForegroundColor = GetConsoleColorByFlagColor(shipManager, shipManager.GetNotDeadShipsList()[i]);
+                                Console.Write($"{i + 1} - {shipManager.GetNotDeadShipsList()[i].Hp} HP - ");
+                                Console.Write($"{shipManager.GetNotDeadShipsList()[i].Name} - ");
+                                Console.Write(shipManager.GetNotDeadShipsList()[i].FlagColor);
                                 Console.WriteLine();
                                 Console.ResetColor();
                             }
@@ -167,18 +173,18 @@ namespace ConsoleApp1
                                 input = Console.ReadLine()?.Replace(" ", "");
                                 result = byte.TryParse(input, out shipIndex);
                             }
-                            while (result == false || shipIndex > logic.GetShipsInBattleList().Count || shipIndex < 1);
+                            while (result == false || shipIndex > shipManager.GetNotDeadShipsList().Count || shipIndex < 1);
 
                             switch (commandNumber)
                             {
-                                case "1": logic.AttackShipHP(logic.GetShipsInBattleList()[shipIndex - 1]); break;
-                                case "2": logic.HealShipHP(logic.GetShipsInBattleList()[shipIndex - 1]); break;
+                                case "1": shipHPManager.AttackShipHP(shipManager.GetNotDeadShipsList()[shipIndex - 1]); break;
+                                case "2": shipHPManager.HealShipHP(shipManager.GetNotDeadShipsList()[shipIndex - 1]); break;
                             }
                         }
 
                         Console.Clear();
-                        logic.GetTurnShip();
-                        Console.WriteLine($"Победа за {logic.GetTurnShip().Name}!!!");
+                        shipIsYourTurnManager.GetTurnShip();
+                        Console.WriteLine($"Победа за {shipIsYourTurnManager.GetTurnShip().Name}!!!");
                         Console.ReadKey();
                         break;
 
@@ -195,14 +201,14 @@ namespace ConsoleApp1
         /// Выводит на консоли список кораблей.
         /// </summary>
         /// <param name="logic">Объект бизнес-логики</param>
-        static void ShowShipsList(Logic logic)
+        static void ShowShipsList(ShipManager shipManager)
         {
-            for (int i = 0; i < logic.GetShipsList().Count(); i++)
+            for (int i = 0; i < shipManager.GetShipsList().Count(); i++)
             {
-                Console.ForegroundColor = GetConsoleColorByFlagColor(logic, logic.GetShipsList()[i]);
-                Console.Write($"{i + 1} - {logic.GetShipsList()[i].Hp} HP - ");
-                Console.Write($"{logic.GetShipsList()[i].Name} - ");
-                Console.Write(logic.GetShipsList()[i].FlagColor);
+                Console.ForegroundColor = GetConsoleColorByFlagColor(shipManager, shipManager.GetShipsList()[i]);
+                Console.Write($"{i + 1} - {shipManager.GetShipsList()[i].Hp} HP - ");
+                Console.Write($"{shipManager.GetShipsList()[i].Name} - ");
+                Console.Write(shipManager.GetShipsList()[i].FlagColor);
                 Console.WriteLine();
                 Console.ResetColor();
             }
@@ -216,9 +222,9 @@ namespace ConsoleApp1
         /// <param name="logic">Объект бизнес-логики</param>
         /// <param name="ship">Объект корабля</param>
         /// <returns>Цвет типа ConsoleColor.</returns>
-        static ConsoleColor GetConsoleColorByFlagColor(Logic logic, object ship)
+        static ConsoleColor GetConsoleColorByFlagColor(ShipManager shipManager, object ship)
         {
-            switch (logic.GetShip(ship).FlagColor)
+            switch (shipManager.GetShip(ship).FlagColor)
             {
                 case FlagColor.Red: return ConsoleColor.Red;
                 case FlagColor.Green: return ConsoleColor.Green;

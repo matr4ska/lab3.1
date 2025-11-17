@@ -1,24 +1,33 @@
 ﻿using ClassLibrary;
+using Microsoft.Extensions.DependencyInjection;
 using Model;
 
 namespace WinFormsApp
 {
     public partial class FormGame : Form
     {
-        public FormGame(Logic logic, ListView listViewMain)
+        public FormGame(ConfigModule configModule, ListView listViewMain)
         {
             InitializeComponent();
 
-            DataContext = logic;
-            logic = (Logic)DataContext;
+            shipManager = configModule.serviceProvider.GetService<ShipManager>();
+            shipHPManager = configModule.serviceProvider.GetService<ShipHPManager>();
+            shipIsYourTurnManager = configModule.serviceProvider.GetService<ShipIsYourTurnManager>();
+            battleManager = configModule.serviceProvider.GetService<BattleManager>();
 
             InitializeListViewMain();
 
-            logic.InitializeNewGame();
+            battleManager.InitializeNewBattle();
             UpdateListViewGame(0);
 
             SetGameOverNotify();   
         }
+
+        private ShipManager shipManager;
+        private BattleManager battleManager;
+        private ShipHPManager shipHPManager;
+        private ShipIsYourTurnManager shipIsYourTurnManager;
+
 
 
         /// <summary>
@@ -40,10 +49,8 @@ namespace WinFormsApp
         /// </summary>
         private void SetGameOverNotify()
         {
-            Logic logic = (Logic)DataContext;
-
-            logic.GameOverNotify += ShowGameOverMessage;
-            logic.GameOverNotify += CloseGameScreen;
+            battleManager.BattleIsOverNotify += ShowGameOverMessage;
+            battleManager.BattleIsOverNotify += CloseGameScreen;
         }
 
 
@@ -55,14 +62,12 @@ namespace WinFormsApp
         /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonAttack_Click(object sender, EventArgs e)
         {
-            Logic logic = (Logic)DataContext;
-
             foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
             {
-                logic.AttackShipHP(selectedItem.Tag);
-                logic.PassTheTurn();
-                UpdateListViewGame(ListViewGame.Items.IndexOf(selectedItem));    
-                logic.CheckIfGameIsOver();
+                shipHPManager.AttackShipHP(selectedItem.Tag);
+                shipIsYourTurnManager.PassTheTurn();
+                UpdateListViewGame(ListViewGame.Items.IndexOf(selectedItem));
+                battleManager.CheckIfBattleIsOver();
             }
         }
 
@@ -75,12 +80,10 @@ namespace WinFormsApp
         /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonHeal_Click(object sender, EventArgs e)
         {
-            Logic logic = (Logic)DataContext;
-
             foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
             {
-                logic.HealShipHP(selectedItem.Tag);
-                logic.PassTheTurn();
+                shipHPManager.HealShipHP(selectedItem.Tag);
+                shipIsYourTurnManager.PassTheTurn();
                 UpdateListViewGame(ListViewGame.Items.IndexOf(selectedItem));
             }
         }
@@ -93,18 +96,16 @@ namespace WinFormsApp
         /// <param name="selectedItemIndex">Индекс выделенного в ListViewGame корабля</param>
         private void UpdateListViewGame(int selectedItemIndex)
         {
-            Logic logic = (Logic)DataContext;
-
             ListViewGame.Items.Clear();
 
-            foreach (var ship in logic.GetShipsInBattleList())
+            foreach (var ship in shipManager.GetNotDeadShipsList())
             {
                 ListViewItem listViewItem = new ListViewItem();
                 listViewItem.Tag = ship;
 
-                listViewItem.SubItems[0].Text = logic.GetShip(ship).Hp.ToString();
-                listViewItem.SubItems.Add(logic.GetShip(ship).Name.ToString());
-                listViewItem.SubItems.Add(logic.GetShip(ship).FlagColor.ToString());
+                listViewItem.SubItems[0].Text = shipManager.GetShip(ship).Hp.ToString();
+                listViewItem.SubItems.Add(shipManager.GetShip(ship).Name.ToString());
+                listViewItem.SubItems.Add(shipManager.GetShip(ship).FlagColor.ToString());
                 listViewItem.ForeColor = GetColorByFlagColor(ship);
 
                 ListViewGame.Items.Add(listViewItem);     
@@ -112,7 +113,7 @@ namespace WinFormsApp
 
             SetSelectedItemInListView(ListViewGame, selectedItemIndex);
 
-            labelPlayer.Text = $"Ход {logic.GetTurnShip().Name}";
+            labelPlayer.Text = $"Ход {shipIsYourTurnManager.GetTurnShip().Name}";
         }
 
 
