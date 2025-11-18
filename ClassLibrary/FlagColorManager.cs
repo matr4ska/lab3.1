@@ -19,9 +19,8 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// Задает объекту корабля цвет флага по строке с названием цвета.
+        /// Возвращает FlagColor по названию.
         /// </summary>
-        /// <param name="ship">Объект корабля</param>
         /// <param name="color">Название цвета</param>
         public static FlagColor ConvertFlagColorFromString(string color)
         {

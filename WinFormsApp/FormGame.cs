@@ -137,7 +137,7 @@ namespace WinFormsApp
 
 
         /// <summary>
-        /// Выводит победное сообщение и закрывает окно игры.
+        /// Выводит победное сообщение.
         /// </summary>
         private void ShowGameOverMessage()
         {

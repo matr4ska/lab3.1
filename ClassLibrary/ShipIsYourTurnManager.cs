@@ -19,7 +19,7 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// Определяет, какого корабля сейчас ход.
+        /// Определяет, какой корабль сейчас ходит.
         /// </summary>
         public void PassTheTurn()
         {
@@ -60,7 +60,7 @@ namespace ClassLibrary
         /// <summary>
         /// Возвращает корабль, который сейчас ходит.
         /// </summary>
-        /// <returns>Объект корабля. Null, если корабль не найден.</returns>
+        /// <returns>Объект корабля</returns>
         public Ship GetTurnShip()
         {
             foreach (Ship ship in shipManager.GetNotDeadShipsList())
@@ -77,7 +77,7 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// Сбрасывает, кто сейчас ходит.
+        /// Сбрасывает ходы.
         /// </summary>
         public void ResetTurns()
         {

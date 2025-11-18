@@ -25,7 +25,7 @@ namespace WinFormsApp
 
 
         /// <summary>
-        /// Создает названия столбцов в ListViewMain.
+        /// Инициализирует ListViewMain.
         /// </summary>
         private void InitializeListViewMain()
         {
@@ -107,7 +107,7 @@ namespace WinFormsApp
 
 
         /// <summary>
-        /// Открывает игровое окно.
+        /// Открывает окно битвы.
         /// </summary>
         /// <param name="sender">Объект, вызвавший событие.</param>
         /// <param name="e">Доп. информация о событии для обработчика.</param>
@@ -129,7 +129,7 @@ namespace WinFormsApp
 
 
         /// <summary>
-        /// Актуализирует отображение объектов в ListView.
+        /// Актуализирует список кораблей в ListViewMain.
         /// </summary>
         private void UpdateViewListMain()
         {

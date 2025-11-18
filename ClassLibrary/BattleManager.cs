@@ -27,7 +27,7 @@ namespace ClassLibrary
 
 
         /// <summary>
-        /// Сбрасывает все параметры прошлой игры для новой игры.
+        /// Сбрасывает все параметры прошлой битвы для новой.
         /// </summary>
         public void InitializeNewBattle()
         {
