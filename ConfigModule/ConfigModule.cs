@@ -30,9 +30,6 @@ namespace ConfigModule
 
             services.AddSingleton<IRepository<Ship>, EntityRepository<Ship>>();
 
-            services.AddSingleton<IMainPresenter, MainPresenter>();
-            services.AddSingleton<IGamePresenter, GamePresenter>();
-
             serviceProvider = services.BuildServiceProvider();
         }
 
