@@ -26,11 +26,6 @@ namespace ClassLibrary.Logic
 
         
 
-
-
-        /// <summary>
-        /// Сбрасывает все параметры прошлой битвы для новой
-        /// </summary>
         public void InitializeNewBattle()
         {
             shipIsYourTurnManager.ResetTurns();
@@ -40,9 +35,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Проверяет, остался ли в игре один единственный корабль. Если True - вызывает событие завершения игры
-        /// </summary>
         public void CheckIfBattleIsOver()
         {
             if (shipManager.GetShipsInBattleList().Count <= 1)

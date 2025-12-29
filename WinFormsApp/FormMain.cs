@@ -17,6 +17,7 @@ namespace WinFormsApp
 
         public FormGame formGame = new FormGame();
 
+
         public FormMain()
         {
             InitializeComponent(); 
@@ -24,13 +25,11 @@ namespace WinFormsApp
 
         
 
-
-
         /// <summary>
-        /// Добавляет новый корабль в ListView.
+        /// Добавляет новый корабль
         /// </summary>
-        /// <param name="sender">Объект, вызвавший событие.</param>
-        /// <param name="e">Доп. информация о событии для обработчика.</param>
+        /// <param name="sender">Объект, вызвавший событие</param>
+        /// <param name="e">Данные для события</param>
         private void ButtonCreateShip_Click(object sender, EventArgs e)
         {
             CreateShip(TextBoxName.Text, ComboBoxColor.SelectedItem.ToString());
@@ -42,10 +41,10 @@ namespace WinFormsApp
 
 
         /// <summary>
-        /// Удаляет выбранный корабль из ListView.
+        /// Удаляет выбранный корабль
         /// </summary>
-        /// <param name="sender">Объект, вызвавший событие.</param>
-        /// <param name="e">Доп. информация о событии для обработчика.</param>
+        /// <param name="sender">Объект, вызвавший событие</param>
+        /// <param name="e">Данные для события</param>
         private void ButtonDeleteShip_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem selectedItem in ListViewMain.SelectedItems)
@@ -59,10 +58,10 @@ namespace WinFormsApp
 
 
         /// <summary>
-        /// Меняет название и цвет выбранного корабля в ListView.
+        /// Меняет название и/или цвет выбранного корабля
         /// </summary>
-        /// <param name="sender">Объект, вызвавший событие.</param>
-        /// <param name="e">Доп. информация о событии для обработчика.</param>
+        /// <param name="sender">Объект, вызвавший событие</param>
+        /// <param name="e">Данные для события</param>
         private void ButtonChangeShipStats_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem selectedItem in ListViewMain.SelectedItems)
@@ -78,10 +77,10 @@ namespace WinFormsApp
 
 
         /// <summary>
-        /// Открывает игровое окно.
+        /// Открывает игровое окно
         /// </summary>
-        /// <param name="sender">Объект, вызвавший событие.</param>
-        /// <param name="e">Доп. информация о событии для обработчика.</param>
+        /// <param name="sender">Объект, вызвавший событие</param>
+        /// <param name="e">Данные для события</param>
         private void ButtonStartGame_Click(object sender, EventArgs e)
         {
             StartGame();
@@ -92,14 +91,11 @@ namespace WinFormsApp
 
 
 
-
-
-
         /// <summary>
-        /// Выводит окно с пояснениями.
+        /// Выводит окно с хэлпом
         /// </summary>
-        /// <param name="sender">Объект, вызвавший событие.</param>
-        /// <param name="e">Доп. информация о событии для обработчика.</param>
+        /// <param name="sender">Объект, вызвавший событие</param>
+        /// <param name="e">Данные для события</param>
         private void buttonHelp_Click(object sender, EventArgs e)
         {
             OnHelpTextRequested();
@@ -108,10 +104,10 @@ namespace WinFormsApp
 
 
         /// <summary>
-        /// Возвращает цвет типа Color по цвету флага корабля.
+        /// Возвращает цвет типа Color по названию цвета флага корабля
         /// </summary>
         /// <param name="ship">Объект корабля</param>
-        /// <returns>Цвет типа Color.</returns>
+        /// <returns>Цвет типа Color</returns>
         private Color GetColorByFlagColor(string flagColor)
         {
             switch (flagColor)
@@ -126,6 +122,8 @@ namespace WinFormsApp
             }
         }
 
+
+
         public void InitializeShipList()
         {
             ListViewMain.View = View.Details;
@@ -137,6 +135,8 @@ namespace WinFormsApp
             OnShipListUpdated();
         }
 
+
+
         public void InitializeFlagColorOptions(List<string> flagColorNames)
         {
             foreach (var item in flagColorNames)
@@ -147,6 +147,8 @@ namespace WinFormsApp
             ComboBoxColor.SelectedIndex = 0;
         }
 
+
+
         public void InitializeMainFormFirstTime()
         {
             InitializeShipList();
@@ -154,25 +156,35 @@ namespace WinFormsApp
             OnShipListUpdated();
         }
 
+
+
         public void CreateShip(string name, string flagColor)
         {
             OnShipCreated(this, new ViewMain_OnShipCreatedEventArgs(name, flagColor));
         }
+
+
 
         public void DeleteShip(string id)
         {
             OnShipDeleted(this, new ViewMain_OnShipDeletedEventArgs(id));
         }
 
+
+
         public void ChangeShipName(string id, string name)
         {
             OnShipNameChanged(this, new ViewMain_OnShipNameChangedEventArgs(id, name));
         }
 
+
+
         public void ChangeShipFlagColor(string id, string flagColor)
         {
             OnShipFlagColorChanged(this, new ViewMain_OnShipFlagColorChangedEventArgs(id, flagColor));
         }
+
+
 
         public void UpdateShipList(List<List<string>> shipsProperties)
         {
@@ -193,10 +205,14 @@ namespace WinFormsApp
             }
         }
 
+
+
         public void StartGame()
         {    
             formGame.ShowDialog(); 
         }
+
+
 
         public void ShowHelp(string helpText)
         {

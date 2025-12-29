@@ -12,10 +12,7 @@ namespace ClassLibrary.Logic
     {
         public event EventHandler<OnHelpTextRequestedEventArgs> OnHelpTextRequested;
 
-        /// <summary>
-        /// Выводит текст о том, как пользоваться приложением
-        /// </summary>
-        /// <returns>Текст с помощью.</returns>
+
         public void GetHelpText()
         {
             string result = @"";

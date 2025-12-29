@@ -14,10 +14,7 @@ namespace ClassLibrary.Logic
     {
         public event EventHandler<OnFlagColorNamesRequestedEventArgs> OnFlagColorNamesRequested;
 
-        /// <summary>
-        /// Возвращает список названий всех цветов флагов
-        /// </summary>
-        /// <returns>Список названий всех цветов флагов</returns>
+
         public List<string> GetFlagColorNames()
         {
             List<string> flagColorNames = Enum.GetNames(typeof(FlagColor)).ToList();
@@ -27,10 +24,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Возвращает FlagColor по названию
-        /// </summary>
-        /// <param name="color">Название цвета</param>
         public FlagColor ConvertFlagColorFromString(string color)
         {
             switch (color)

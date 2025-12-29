@@ -29,13 +29,11 @@ namespace ConsoleApp1
 
 
 
-
         /// <summary>
-        /// Возвращает цвет типа ConsoleColor по цвету флага корабля.
+        /// Возвращает цвет типа ConsoleColor по названию цвета флага корабля
         /// </summary>
-        /// <param name="logic">Объект бизнес-логики</param>
-        /// <param name="ship">Объект корабля</param>
-        /// <returns>Цвет типа ConsoleColor.</returns>
+        /// <param name="flagColor">Название цвета флага</param>
+        /// <returns>Цвет типа ConsoleColor</returns>
         static ConsoleColor GetConsoleColorByFlagColor(string flagColor)
         {
             switch (flagColor)
@@ -189,6 +187,9 @@ namespace ConsoleApp1
 
 
 
+        /// <summary>
+        /// Запускает консольное приложение
+        /// </summary>
         public void Start()
         {
             OnFlagColorNamesRequested();

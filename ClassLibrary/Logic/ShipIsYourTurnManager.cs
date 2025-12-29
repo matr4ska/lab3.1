@@ -22,9 +22,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Определяет, какой корабль сейчас ходит. Управляет системой ходов
-        /// </summary>
         public void PassTheTurn()
         {
             int ship1Id;
@@ -62,10 +59,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Возвращает корабль, который сейчас ходит.
-        /// </summary>
-        /// <returns>Объект корабля</returns>
         public Ship GetTurnShip()
         {
             List<Ship> shipsInBattle = shipManager.GetShipsInBattleList();
@@ -84,9 +77,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Сбрасывает ходы.
-        /// </summary>
         public void ResetTurns()
         {
             List<Ship> ships = shipManager.GetShipsList();

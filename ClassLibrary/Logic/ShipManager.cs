@@ -28,11 +28,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Создает объект корабля, добавляет его в общий список кораблей.
-        /// </summary>
-        /// <param name="name">Название</param>
-        /// <param name="flagColor">Цвет флага</param>
         public void CreateShip(string name, string flagColor)
         {
             if (!string.IsNullOrWhiteSpace(name) && flagColor.ToString() != "_No_Color_")
@@ -51,10 +46,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Удаляет корабль
-        /// </summary>
-        /// <param name="id">ID корабля</param>
         public void DeleteShip(int id)
         {
             repository.Delete(id);
@@ -62,11 +53,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Возвращает корабль
-        /// </summary>
-        /// <param name="id">ID корабля</param>
-        /// <returns>Объект корабля</returns>
         public Ship GetShip(int id)
         {
             return repository.GetItem(id);
@@ -74,9 +60,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Возвращает список всех свойства каждого корабля. Метод для передачи во View.
-        /// </summary>
         public void GetShipsListInView()
         {
             List<List<string>> shipsProperties = new List<List<string>>();
@@ -96,10 +79,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Возвращает список всех кораблей
-        /// </summary>
-        /// <returns>Список всех кораблей</returns>
         public List<Ship> GetShipsList()
         {
             return repository.GetAll().ToList();
@@ -107,9 +86,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Возвращает список всех кораблей с ХП больше нуля. Для передачи во View
-        /// </summary>
         public void GetShipsInBattleListInView()
         {
             List<Ship> ShipsInBattle = (from ship in repository.GetAll()
@@ -132,10 +108,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Возвращает список всех кораблей с ХП больше нуля
-        /// </summary>
-        /// <returns>Cписок кораблей с ХП больше нуля</returns>
         public List<Ship> GetShipsInBattleList()
         {
             return (from ship in repository.GetAll()
@@ -145,11 +117,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Меняет название кораблю
-        /// </summary>
-        /// <param name="id">ID корабля</param>
-        /// <param name="name">Новое название корабля</param>
         public void ChangeShipName(int id, string name)
         {
             if (!string.IsNullOrWhiteSpace(name))
@@ -162,11 +129,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Меняет цвет флага кораблю
-        /// </summary>
-        /// <param name="id">ID корабля</param>
-        /// <param name="flagColor">Название нового цвета флага корабля</param>
         public void ChangeFlagColor(int id, string flagColor)
         {
             if (flagColor != "_No_Color_")
@@ -179,11 +141,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Меняет ХП кораблю на заданное значение
-        /// </summary>
-        /// <param name="id">ID корабля</param>
-        /// <param name="addHp">Прибавляемое кораблю ХП</param>
         public void ChangeHPByValue(int id, int addHp)
         {
             Ship ship = GetShip(id);
@@ -193,11 +150,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Меняет, ходит или не ходит сейчас корабль
-        /// </summary>
-        /// <param name="id">ID корабля</param>
-        /// <param name="isYourTurn">Ходит ли сейчас корабль</param>
         public void ChangeIsYourTurn(int id, bool isYourTurn)
         {
             Ship ship = GetShip(id);

@@ -90,17 +90,9 @@ namespace WinFormsApp
         }
 
 
-
         public void PassTheTurn()
         {
             OnPassTheTurn();
-        }
-
-
-
-        public void UpdateShipsInBattle()
-        {
-            OnShipsInBattleListUpdated();
         }
 
 
@@ -116,7 +108,7 @@ namespace WinFormsApp
         {
             this.selectedShipIndex = selectedShipIndex;
             PassTheTurn();
-            UpdateShipsInBattle();
+            OnShipsInBattleListUpdated();
             TryEndBattle();
             SetTurnShip();
         }
@@ -130,10 +122,6 @@ namespace WinFormsApp
 
 
 
-        /// <summary>
-        /// Актуализирует список кораблей в ListViewGame.
-        /// </summary>
-        /// <param name="selectedItemIndex">Индекс выделенного в ListViewGame корабля</param>
         public void UpdateShipsInBattleList(List<List<string>> shipsInBattle)
         {
             ListViewGame.Items.Clear();
@@ -164,9 +152,9 @@ namespace WinFormsApp
 
 
         /// <summary>
-        /// Выделяет нужный item по его индексу в ListView.
+        /// Выделяет нужный элемент по его индексу в ListView
         /// </summary>
-        /// <param name="selectedItemIndex">Индекс выделенного item.</param>
+        /// <param name="selectedItemIndex">Индекс выделенного элемента</param>
         private void SetSelectedItemInListView(ListView listView, int selectedItemIndex)
         {
             if (selectedItemIndex >= 0)
@@ -185,9 +173,6 @@ namespace WinFormsApp
 
 
 
-        /// <summary>
-        /// Выводит победное сообщение.
-        /// </summary>
         public void ShowGameOverMessage()
         {
             MessageBox.Show($"Победа за {ListViewGame.Items[0].SubItems[1].Text}!!!");
@@ -202,13 +187,10 @@ namespace WinFormsApp
 
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void ResetGame()
         {
             StartNewBattle();
-            UpdateShipsInBattle();
+            OnShipsInBattleListUpdated();
 
             selectedShipIndex = 0;
             SetSelectedItemInListView(ListViewGame, selectedShipIndex);
@@ -217,9 +199,6 @@ namespace WinFormsApp
 
 
 
-        /// <summary>
-        /// Закрывает окно игры.
-        /// </summary>
         public void CloseGameScreen()
         {  
             base.Close();

@@ -20,10 +20,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Убавляет кораблю ХП
-        /// </summary>
-        /// <param name="ship">Объект корабля</param>
         public void AttackShipHP(int id)
         {
             shipManager.ChangeHPByValue(id, -20);
@@ -31,10 +27,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Прибавляет кораблю ХП
-        /// </summary>
-        /// <param name="ship">Объект корабля</param>
         public void HealShipHP(int id)
         {
             shipManager.ChangeHPByValue(id, +15);
@@ -42,9 +34,6 @@ namespace ClassLibrary.Logic
 
 
 
-        /// <summary>
-        /// Восстанавливает ХП всем кораблям
-        /// </summary>
         public void RecoverHP()
         {
             List<Ship> ships = shipManager.GetShipsList();
