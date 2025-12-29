@@ -1,4 +1,6 @@
-﻿using DataAccessLayer;
+﻿using ClassLibrary.Interfaces;
+using ClassLibrary.ModelEventArgs;
+using DataAccessLayer;
 using Model;
 using System;
 using System.Collections.Generic;
@@ -6,23 +8,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLibrary
+namespace ClassLibrary.Logic
 {
-    public class FlagColorManager
+    public class FlagColorManager : IFlagColorManager
     {
+        public event EventHandler<OnFlagColorNamesRequestedEventArgs> OnFlagColorNamesRequested;
+
         /// <summary>
-        /// Возвращает список названий всех цветов флагов.
+        /// Возвращает список названий всех цветов флагов
         /// </summary>
         /// <returns>Список названий всех цветов флагов</returns>
-        public static List<string> GetFlagColorNames() => Enum.GetNames(typeof(FlagColor)).ToList();
+        public List<string> GetFlagColorNames()
+        {
+            List<string> flagColorNames = Enum.GetNames(typeof(FlagColor)).ToList();
+            OnFlagColorNamesRequested(this, new OnFlagColorNamesRequestedEventArgs(flagColorNames));
+            return flagColorNames;
+        }
 
 
 
         /// <summary>
-        /// Возвращает FlagColor по названию.
+        /// Возвращает FlagColor по названию
         /// </summary>
         /// <param name="color">Название цвета</param>
-        public static FlagColor ConvertFlagColorFromString(string color)
+        public FlagColor ConvertFlagColorFromString(string color)
         {
             switch (color)
             {

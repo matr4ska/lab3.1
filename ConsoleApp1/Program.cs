@@ -1,33 +1,214 @@
 ﻿using ClassLibrary;
+using ClassLibrary.Interfaces;
+using ClassLibrary.Logic;
 using Microsoft.Extensions.DependencyInjection;
 using Model;
-
+using Shared.ViewGame_EventArgs;
+using Shared.ViewMain_EventArgs;
+using Shared.WinForms_Interfaces;
+using Shared.Console_Interfaces;
+using System.Xml.Linq;
 
 namespace ConsoleApp1
 {
-    public class Program
+    public class Program : IConsoleMainView, IConsoleGameView
     {
-        static void Main(string[] args)
+        public event EventHandler<ViewMain_OnShipCreatedEventArgs> OnShipCreated;
+        public event EventHandler<ViewMain_OnShipDeletedEventArgs> OnShipDeleted;
+        public event EventHandler<ViewMain_OnShipNameChangedEventArgs> OnShipNameChanged;
+        public event EventHandler<ViewMain_OnShipFlagColorChangedEventArgs> OnShipFlagColorChanged;
+        public event Action OnShipListUpdated;
+        public event Action OnFlagColorNamesRequested;
+
+        public event EventHandler<ViewGame_OnShipAttackedEventArgs> OnShipAttacked;
+        public event EventHandler<ViewGame_OnShipHealedEventArgs> OnShipHealed;
+        public event Action OnShipsInBattleListUpdated;
+        public event Action OnNewBattleStarted;
+        public event Action OnPassTheTurn;
+        public event Action OnGetTurnShip;
+
+
+
+
+        /// <summary>
+        /// Возвращает цвет типа ConsoleColor по цвету флага корабля.
+        /// </summary>
+        /// <param name="logic">Объект бизнес-логики</param>
+        /// <param name="ship">Объект корабля</param>
+        /// <returns>Цвет типа ConsoleColor.</returns>
+        static ConsoleColor GetConsoleColorByFlagColor(string flagColor)
         {
-            string? input;
-            byte shipIndex;
-            byte colorIndex;
-            string? commandNumber;
-            string? shipName;
-            string? shipColor;
+            switch (flagColor)
+            {
+                case "Red": return ConsoleColor.Red;
+                case "Green": return ConsoleColor.Green;
+                case "Blue": return ConsoleColor.Blue;
+                case "Yellow": return ConsoleColor.Yellow;
+                case "Pink": return ConsoleColor.Magenta;
+
+                default: return ConsoleColor.Gray;
+            }
+        }
+
+
+
+        public void InitializeFlagColorOptions(List<string> flagColorNames)
+        {
+            flagColors = flagColorNames;
+        }
+
+
+
+        public void CreateShip(string name, string flagColor)
+        {
+            OnShipCreated(this, new ViewMain_OnShipCreatedEventArgs(name, flagColor));
+        }
+
+
+
+        public void DeleteShip(string id)
+        {
+            OnShipDeleted(this, new ViewMain_OnShipDeletedEventArgs(id));
+        }
+
+
+
+        public void ChangeShipName(string id, string name)
+        {
+            OnShipNameChanged(this, new ViewMain_OnShipNameChangedEventArgs(id, name));
+        }
+
+
+
+        public void ChangeShipFlagColor(string id, string flagColor)
+        {
+            OnShipFlagColorChanged(this, new ViewMain_OnShipFlagColorChangedEventArgs(id, flagColor));
+        }
+
+
+
+        public void UpdateShipList(List<List<string>> shipsProperties)
+        {
+            ships = shipsProperties;
+        }
+
+
+
+        public void ShowShipList()
+        {
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Console.ForegroundColor = GetConsoleColorByFlagColor(ships[i][2]);
+                Console.Write($"{ships[i][3]}: {ships[i][0]} HP - ");
+                Console.Write($"{ships[i][1]} - ");
+                Console.Write($"{ships[i][2]}");
+                Console.WriteLine();
+                Console.ResetColor();
+            }
+        }
+
+
+
+        public void UpdateShipsInBattle(List<List<string>> shipsProperties)
+        {
+            shipsInBattle = shipsProperties;
+        }
+
+
+
+        public void ShowShipsInBattle()
+        {
+            for (int i = 0; i < shipsInBattle.Count; i++)
+            {
+                Console.ForegroundColor = GetConsoleColorByFlagColor(shipsInBattle[i][2]);
+                Console.Write($"{shipsInBattle[i][3]}: {shipsInBattle[i][0]} HP - ");
+                Console.Write($"{shipsInBattle[i][1]} - ");
+                Console.Write($"{shipsInBattle[i][2]}");
+                Console.WriteLine();
+                Console.ResetColor();
+            }
+        }
+
+
+
+        public void AttackShip(string id)
+        {
+            OnShipAttacked(this, new ViewGame_OnShipAttackedEventArgs(id));
+        }
+
+
+
+        public void HealShip(string id)
+        {
+            OnShipHealed(this, new ViewGame_OnShipHealedEventArgs(id));
+        }
+
+
+
+        public void PassTheTurn()
+        {
+            OnPassTheTurn();
+        }
+
+
+        
+        public void SetTurnShip()
+        {
+            OnGetTurnShip();
+        }
+
+
+
+        public void ChangeTurnShipName(string name)
+        {
+            turnShipName = name;
+        }
+        
+
+
+        public void StartNewBattle()
+        {
+            OnShipsInBattleListUpdated();
+            OnNewBattleStarted();
+        }
+
+
+
+        public void ResetGame()
+        {
+            StartNewBattle();
+            SetTurnShip();
+        }
+
+
+
+        public string turnShipName;
+        public List<string> flagColors;
+        public List<List<string>> ships;
+        public List<List<string>> shipsInBattle;
+
+
+
+        public void Start()
+        {
+            OnFlagColorNamesRequested();
+            
+            string input;
+            string shipId;
+            string shipName;
+            string colorIndex;
+            string commandNumber;
+            int shipIdParse;
+            int colorIndexParse;
             bool result;
-
-            ConfigModule configModule = new ConfigModule();
-            ShipManager shipManager = configModule.serviceProvider.GetService<ShipManager>();
-            ShipHPManager shipHPManager = configModule.serviceProvider.GetService<ShipHPManager>();
-            ShipIsYourTurnManager shipIsYourTurnManager = configModule.serviceProvider.GetService<ShipIsYourTurnManager>();
-            BattleManager battleManager = configModule.serviceProvider.GetService<BattleManager>();
-
+            bool isIdExists;
+            
             while (true)
             {
+                OnShipListUpdated();
                 Console.Clear();
                 Console.WriteLine("Ваш флот:");
-                ShowShipsList(shipManager);
+                ShowShipList();
 
                 Console.WriteLine();
                 Console.WriteLine("Делай корабли, йохохо");
@@ -52,57 +233,93 @@ namespace ConsoleApp1
 
                         Console.Clear();
                         Console.WriteLine("Цвет флага корабля:");
-                        for (int i = 1; i < FlagColorManager.GetFlagColorNames().Count; i++)
+                        for (int i = 1; i < flagColors.Count; i++)
                         {
-                            Console.WriteLine($"{i} - {FlagColorManager.GetFlagColorNames()[i]}");
+                            Console.WriteLine($"{i} - {flagColors[i]}");
                         }
 
                         do
                         {
-                            shipColor = Console.ReadLine()?.Replace(" ", "");
-                            result = byte.TryParse(shipColor, out colorIndex);
+                            colorIndex = Console.ReadLine()?.Replace(" ", "");
+                            result = int.TryParse(colorIndex, out colorIndexParse);
                         }
-                        while (result == false || colorIndex > FlagColorManager.GetFlagColorNames().Count - 1 || colorIndex < 1);
+                        while (result == false || colorIndexParse > flagColors.Count - 1 || colorIndexParse < 1);
 
-                        Console.Clear();
-                        shipManager.CreateShip(shipName, FlagColorManager.GetFlagColorNames()[colorIndex]);
-                        Console.WriteLine($"{shipName} построен!");
-                        Console.ReadKey();
+                        CreateShip(shipName, flagColors[colorIndexParse]);
+
                         break;
 
 
 
                     case "2":
-                        ShowShipsList(shipManager);
-
+                        ShowShipList();
+                        isIdExists = false;
                         Console.WriteLine();
                         Console.WriteLine("Какой корабль удалить?");
-                        do
+                        while (true)
                         {
-                            input = Console.ReadLine()?.Replace(" ", "");
-                            result = byte.TryParse(input, out shipIndex);
-                        }
-                        while (result == false || shipIndex > shipManager.GetShipsList().Count || shipIndex < 1);
+                            do
+                            {
+                                shipId = Console.ReadLine().Trim();
+                                result = int.TryParse(shipId, out shipIdParse);                              
+                            }
+                            while (result == false);
 
-                        Console.Clear();
-                        Console.WriteLine($"Корабль {shipManager.GetShipsList()[shipIndex - 1].Name} потоплен!");
-                        shipManager.DeleteShip(shipManager.GetShipsList()[shipIndex - 1]);
-                        Console.ReadKey();
+                            List<int> shipIds = new List<int>();
+                            for(int i = 0; i < ships.Count; i++)
+                            {
+                                shipIds.Add(Convert.ToInt32(ships[i][3]));
+                            }
+
+                            foreach (int id in shipIds)
+                            {
+                                if (shipIdParse == id)
+                                {
+                                    isIdExists = true;
+                                }
+                            }
+
+                            if (isIdExists == true) { break; }
+                        }
+
+                        DeleteShip(shipId);
+
                         break;
 
 
 
                     case "3":
-                        ShowShipsList(shipManager);
+                        ShowShipList();
 
                         Console.WriteLine();
-                        Console.WriteLine("Выберите корабль (по номеру)");
-                        do
+                        Console.WriteLine("Выберите корабль (по Id)");
+
+                        isIdExists = false;
+                        while (true)
                         {
-                            input = Console.ReadLine()?.Replace(" ", "");
-                            result = byte.TryParse(input, out shipIndex);
+                            do
+                            {
+                                shipId = Console.ReadLine().Trim();
+                                result = int.TryParse(shipId, out shipIdParse);
+                            }
+                            while (result == false);
+
+                            List<int> shipIds = new List<int>();
+                            for (int i = 0; i < ships.Count; i++)
+                            {
+                                shipIds.Add(Convert.ToInt32(ships[i][3]));
+                            }
+
+                            foreach (int id in shipIds)
+                            {
+                                if (shipIdParse == id)
+                                {
+                                    isIdExists = true;
+                                }
+                            }
+
+                            if (isIdExists == true) { break; }
                         }
-                        while (result == false || shipIndex > shipManager.GetShipsList().Count || shipIndex < 1);
 
                         Console.WriteLine();
                         Console.WriteLine("Новое название корабля:");
@@ -112,47 +329,36 @@ namespace ConsoleApp1
                         Console.WriteLine();
                         Console.WriteLine("Цвет флага корабля:");
                         Console.WriteLine("0 - не менять");
-                        for (int i = 1; i < FlagColorManager.GetFlagColorNames().Count; i++)
+                        for (int i = 1; i < flagColors.Count; i++)
                         {
-                            Console.WriteLine($"{i} - {FlagColorManager.GetFlagColorNames()[i]}");
+                            Console.WriteLine($"{i} - {flagColors[i]}");
                         }
 
                         do
                         {
-                            shipColor = Console.ReadLine()?.Replace(" ", "");
-                            result = byte.TryParse(shipColor, out colorIndex);
+                            colorIndex = Console.ReadLine()?.Replace(" ", "");
+                            result = int.TryParse(colorIndex, out colorIndexParse);
                         }
-                        while (result == false || colorIndex > FlagColorManager.GetFlagColorNames().Count - 1);
+                        while (result == false || colorIndexParse > flagColors.Count - 1);
 
-                        Console.Clear();
-                        shipManager.ChangeShipName(shipManager.GetShipsList()[shipIndex - 1], shipName);
-                        shipManager.ChangeFlagColor(shipManager.GetShipsList()[shipIndex - 1], FlagColorManager.GetFlagColorNames()[colorIndex]);
-                        Console.WriteLine("Корабль изменен:");
-                        Console.Write($"{shipManager.GetShipsList()[shipIndex - 1].Name} - ");
-                        Console.Write(shipManager.GetShipsList()[shipIndex - 1].FlagColor);
-                        Console.WriteLine();
-                        Console.ReadKey();
+                        OnShipNameChanged(this, new ViewMain_OnShipNameChangedEventArgs(shipId, shipName));
+                        OnShipFlagColorChanged(this, new ViewMain_OnShipFlagColorChangedEventArgs(shipId, flagColors[colorIndexParse]));
+
                         break;
 
 
 
                     case "4":
-                        battleManager.InitializeNewBattle();
+                        StartNewBattle();
 
-                        while (shipManager.GetNotDeadShipsList().Count > 1)
+                        while (shipsInBattle.Count > 1)
                         {
                             Console.Clear();
-                            Console.WriteLine($"Ход {shipIsYourTurnManager.GetTurnShip().Name}");
+                            ShowShipsInBattle();
                             Console.WriteLine();
-                            for (int i = 0; i < shipManager.GetNotDeadShipsList().Count(); i++)
-                            {
-                                Console.ForegroundColor = GetConsoleColorByFlagColor(shipManager, shipManager.GetNotDeadShipsList()[i]);
-                                Console.Write($"{i + 1} - {shipManager.GetNotDeadShipsList()[i].Hp} HP - ");
-                                Console.Write($"{shipManager.GetNotDeadShipsList()[i].Name} - ");
-                                Console.Write(shipManager.GetNotDeadShipsList()[i].FlagColor);
-                                Console.WriteLine();
-                                Console.ResetColor();
-                            }
+                            SetTurnShip();
+                            Console.WriteLine($"Ходит {turnShipName}");
+
 
                             Console.WriteLine();
                             Console.WriteLine("Что прикажете?");
@@ -166,26 +372,50 @@ namespace ConsoleApp1
                             while (commandNumber != "1" && commandNumber != "2");
 
                             Console.WriteLine();
-                            Console.WriteLine("Выберите корабль (по номеру):");
+                            Console.WriteLine("Выберите корабль (по Id):");
                             Console.WriteLine();
-                            do
+                            isIdExists = false;
+                            while (true)
                             {
-                                input = Console.ReadLine()?.Replace(" ", "");
-                                result = byte.TryParse(input, out shipIndex);
+                                do
+                                {
+                                    shipId = Console.ReadLine().Trim();
+                                    result = int.TryParse(shipId, out shipIdParse);
+                                }
+                                while (result == false);
+
+                                List<int> shipIds = new List<int>();
+                                for (int i = 0; i < ships.Count; i++)
+                                {
+                                    shipIds.Add(Convert.ToInt32(ships[i][3]));
+                                }
+
+                                foreach (int id in shipIds)
+                                {
+                                    if (shipIdParse == id)
+                                    {
+                                        isIdExists = true;
+                                    }
+                                }
+
+                                if (isIdExists == true) { break; }
                             }
-                            while (result == false || shipIndex > shipManager.GetNotDeadShipsList().Count || shipIndex < 1);
 
                             switch (commandNumber)
                             {
-                                case "1": shipHPManager.AttackShipHP(shipManager.GetNotDeadShipsList()[shipIndex - 1]); break;
-                                case "2": shipHPManager.HealShipHP(shipManager.GetNotDeadShipsList()[shipIndex - 1]); break;
+                                case "1": OnShipAttacked(this, new ViewGame_OnShipAttackedEventArgs(shipId)); break;
+                                case "2": OnShipHealed(this, new ViewGame_OnShipHealedEventArgs(shipId)); break;
                             }
+                            PassTheTurn();
+                            OnShipsInBattleListUpdated();
                         }
-
+                        
                         Console.Clear();
-                        shipIsYourTurnManager.GetTurnShip();
-                        Console.WriteLine($"Победа за {shipIsYourTurnManager.GetTurnShip().Name}!!!");
+                        PassTheTurn();
+                        SetTurnShip();
+                        Console.WriteLine($"{turnShipName} победил!!!");
                         Console.ReadKey();
+                        ResetGame();
                         break;
 
 
@@ -197,43 +427,6 @@ namespace ConsoleApp1
 
 
 
-        /// <summary>
-        /// Выводит на консоли список кораблей.
-        /// </summary>
-        /// <param name="logic">Объект бизнес-логики</param>
-        static void ShowShipsList(ShipManager shipManager)
-        {
-            for (int i = 0; i < shipManager.GetShipsList().Count(); i++)
-            {
-                Console.ForegroundColor = GetConsoleColorByFlagColor(shipManager, shipManager.GetShipsList()[i]);
-                Console.Write($"{i + 1} - {shipManager.GetShipsList()[i].Hp} HP - ");
-                Console.Write($"{shipManager.GetShipsList()[i].Name} - ");
-                Console.Write(shipManager.GetShipsList()[i].FlagColor);
-                Console.WriteLine();
-                Console.ResetColor();
-            }
-        }
-
-
-
-        /// <summary>
-        /// Возвращает цвет типа ConsoleColor по цвету флага корабля.
-        /// </summary>
-        /// <param name="logic">Объект бизнес-логики</param>
-        /// <param name="ship">Объект корабля</param>
-        /// <returns>Цвет типа ConsoleColor.</returns>
-        static ConsoleColor GetConsoleColorByFlagColor(ShipManager shipManager, object ship)
-        {
-            switch (shipManager.GetShip(ship).FlagColor)
-            {
-                case FlagColor.Red: return ConsoleColor.Red;
-                case FlagColor.Green: return ConsoleColor.Green;
-                case FlagColor.Blue: return ConsoleColor.Blue;
-                case FlagColor.Yellow: return ConsoleColor.Yellow;
-                case FlagColor.Pink: return ConsoleColor.Magenta;
-
-                default: return ConsoleColor.Gray;
-            }
-        }
-    }
+        public static void Main(string[] args) { }
+    }       
 }

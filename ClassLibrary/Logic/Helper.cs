@@ -1,18 +1,22 @@
-﻿using System;
+﻿using ClassLibrary.Interfaces;
+using ClassLibrary.ModelEventArgs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLibrary
+namespace ClassLibrary.Logic
 {
-    public class Helper
+    public class Helper : IHelper
     {
+        public event EventHandler<OnHelpTextRequestedEventArgs> OnHelpTextRequested;
+
         /// <summary>
-        /// Выводит текст о том, как пользоваться приложением.
+        /// Выводит текст о том, как пользоваться приложением
         /// </summary>
         /// <returns>Текст с помощью.</returns>
-        public static string GetHelpText()
+        public void GetHelpText()
         {
             string result = @"";
             using (var reader = new StreamReader(@"help.txt"))
@@ -23,8 +27,9 @@ namespace ClassLibrary
                     result += line;
                     result += Environment.NewLine;
                 }
-                return result;
             }
+
+            OnHelpTextRequested(this, new OnHelpTextRequestedEventArgs(result));
         }
     }
 }

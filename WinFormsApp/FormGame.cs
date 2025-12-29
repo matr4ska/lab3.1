@@ -1,32 +1,30 @@
 ﻿using ClassLibrary;
+using ClassLibrary.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Model;
+using Shared.ViewGame_EventArgs;
+using Shared.WinForms_Interfaces;
 
 namespace WinFormsApp
 {
-    public partial class FormGame : Form
+    public partial class FormGame : Form, IGameView
     {
-        public FormGame(ConfigModule configModule, ListView listViewMain)
+        public event EventHandler<ViewGame_OnShipAttackedEventArgs> OnShipAttacked;
+        public event EventHandler<ViewGame_OnShipHealedEventArgs> OnShipHealed;
+        public event Action OnShipsInBattleListUpdated;
+        public event Action OnNewBattleStarted;
+        public event Action OnCheckIfGameIsOver;
+        public event Action OnPassTheTurn;
+        public event Action OnGetTurnShip;
+
+
+        int selectedShipIndex;
+
+        public FormGame()
         {
             InitializeComponent();
-
-            shipManager = configModule.serviceProvider.GetService<ShipManager>();
-            shipHPManager = configModule.serviceProvider.GetService<ShipHPManager>();
-            shipIsYourTurnManager = configModule.serviceProvider.GetService<ShipIsYourTurnManager>();
-            battleManager = configModule.serviceProvider.GetService<BattleManager>();
-
-            InitializeListViewMain();
-
-            battleManager.InitializeNewBattle();
-            UpdateListViewGame(0);
-
-            SetGameOverNotify();   
+            selectedShipIndex = 0;
         }
-
-        private ShipManager shipManager;
-        private BattleManager battleManager;
-        private ShipHPManager shipHPManager;
-        private ShipIsYourTurnManager shipIsYourTurnManager;
 
 
 
@@ -40,17 +38,9 @@ namespace WinFormsApp
             ListViewGame.Columns.Add("HP", -2);
             ListViewGame.Columns.Add("Name", -2);
             ListViewGame.Columns.Add("Color", -2);
-        }
+            ListViewGame.Columns.Add("Id", -2);
 
-
-
-        /// <summary>
-        /// Привязывает методы к уведомлению о конце игры.
-        /// </summary>
-        private void SetGameOverNotify()
-        {
-            battleManager.BattleIsOverNotify += ShowGameOverMessage;
-            battleManager.BattleIsOverNotify += CloseGameScreen;
+            OnShipsInBattleListUpdated();
         }
 
 
@@ -62,16 +52,14 @@ namespace WinFormsApp
         /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonAttack_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
+            foreach (ListViewItem selectedShip in ListViewGame.SelectedItems)
             {
-                shipHPManager.AttackShipHP(selectedItem.Tag);
-                shipIsYourTurnManager.PassTheTurn();
-                UpdateListViewGame(ListViewGame.Items.IndexOf(selectedItem));
-                battleManager.CheckIfBattleIsOver();
+                AttackShip(selectedShip.SubItems[3].Text);
+                EndTheTurn(ListViewGame.Items.IndexOf(selectedShip));
             }
         }
 
-
+       
 
         /// <summary>
         /// Кнопка для восстановления ХП выбранного корабля.
@@ -80,12 +68,64 @@ namespace WinFormsApp
         /// <param name="e">Доп. информация о событии для обработчика.</param>
         private void ButtonHeal_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem selectedItem in ListViewGame.SelectedItems)
-            {
-                shipHPManager.HealShipHP(selectedItem.Tag);
-                shipIsYourTurnManager.PassTheTurn();
-                UpdateListViewGame(ListViewGame.Items.IndexOf(selectedItem));
+            foreach (ListViewItem selectedShip in ListViewGame.SelectedItems)
+            {      
+                HealShip(selectedShip.SubItems[3].Text);
+                EndTheTurn(ListViewGame.Items.IndexOf(selectedShip));
             }
+        }
+
+
+
+        public void AttackShip(string id)
+        {
+            OnShipAttacked(this, new ViewGame_OnShipAttackedEventArgs(id));
+        }
+
+
+
+        public void HealShip(string id)
+        {
+            OnShipHealed(this, new ViewGame_OnShipHealedEventArgs(id));
+        }
+
+
+
+        public void PassTheTurn()
+        {
+            OnPassTheTurn();
+        }
+
+
+
+        public void UpdateShipsInBattle()
+        {
+            OnShipsInBattleListUpdated();
+        }
+
+
+
+        public void SetTurnShip()
+        {
+            OnGetTurnShip();
+        }
+
+
+
+        public void EndTheTurn(int selectedShipIndex)
+        {
+            this.selectedShipIndex = selectedShipIndex;
+            PassTheTurn();
+            UpdateShipsInBattle();
+            TryEndBattle();
+            SetTurnShip();
+        }
+
+
+
+        public void TryEndBattle()
+        {
+            OnCheckIfGameIsOver();
         }
 
 
@@ -94,26 +134,31 @@ namespace WinFormsApp
         /// Актуализирует список кораблей в ListViewGame.
         /// </summary>
         /// <param name="selectedItemIndex">Индекс выделенного в ListViewGame корабля</param>
-        private void UpdateListViewGame(int selectedItemIndex)
+        public void UpdateShipsInBattleList(List<List<string>> shipsInBattle)
         {
             ListViewGame.Items.Clear();
 
-            foreach (var ship in shipManager.GetNotDeadShipsList())
+            for (int i = 0; i < shipsInBattle.Count(); i++)
             {
                 ListViewItem listViewItem = new ListViewItem();
-                listViewItem.Tag = ship;
 
-                listViewItem.SubItems[0].Text = shipManager.GetShip(ship).Hp.ToString();
-                listViewItem.SubItems.Add(shipManager.GetShip(ship).Name.ToString());
-                listViewItem.SubItems.Add(shipManager.GetShip(ship).FlagColor.ToString());
-                listViewItem.ForeColor = GetColorByFlagColor(ship);
+                listViewItem.SubItems[0].Text = shipsInBattle[i][0];
+                listViewItem.SubItems.Add(shipsInBattle[i][1]);
+                listViewItem.SubItems.Add(shipsInBattle[i][2]);
+                listViewItem.SubItems.Add(shipsInBattle[i][3]);
+                listViewItem.ForeColor = GetColorByFlagColor(shipsInBattle[i][2]);
 
-                ListViewGame.Items.Add(listViewItem);     
+                ListViewGame.Items.Add(listViewItem);
             }
 
-            SetSelectedItemInListView(ListViewGame, selectedItemIndex);
+            SetSelectedItemInListView(ListViewGame, selectedShipIndex);      
+        }
 
-            labelPlayer.Text = $"Ход {shipIsYourTurnManager.GetTurnShip().Name}";
+
+
+        public void ChangeTurnShipName(string name)
+        {
+            labelPlayer.Text = $"Ход {name}";
         }
 
 
@@ -124,13 +169,17 @@ namespace WinFormsApp
         /// <param name="selectedItemIndex">Индекс выделенного item.</param>
         private void SetSelectedItemInListView(ListView listView, int selectedItemIndex)
         {
-            if (listView.Items.Count - 1 < selectedItemIndex) 
-            { 
-                listView.Items[listView.Items.Count - 1].Selected = true; 
-            }
-            else 
-            { 
-                listView.Items[selectedItemIndex].Selected = true; 
+            if (selectedItemIndex >= 0)
+            {
+                if (listView.Items.Count - 1 <= selectedItemIndex)
+                {
+                    listView.Items[listView.Items.Count - 1].Selected = true;
+                }
+
+                else
+                {
+                    listView.Items[selectedItemIndex].Selected = true;
+                }
             }
         }
 
@@ -139,9 +188,31 @@ namespace WinFormsApp
         /// <summary>
         /// Выводит победное сообщение.
         /// </summary>
-        private void ShowGameOverMessage()
+        public void ShowGameOverMessage()
         {
             MessageBox.Show($"Победа за {ListViewGame.Items[0].SubItems[1].Text}!!!");
+        }
+
+
+
+        public void StartNewBattle()
+        {
+            OnNewBattleStarted();
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void ResetGame()
+        {
+            StartNewBattle();
+            UpdateShipsInBattle();
+
+            selectedShipIndex = 0;
+            SetSelectedItemInListView(ListViewGame, selectedShipIndex);
+            SetTurnShip();
         }
 
 
@@ -149,8 +220,8 @@ namespace WinFormsApp
         /// <summary>
         /// Закрывает окно игры.
         /// </summary>
-        private void CloseGameScreen()
-        {
+        public void CloseGameScreen()
+        {  
             base.Close();
         }
 
@@ -161,18 +232,26 @@ namespace WinFormsApp
         /// </summary>
         /// <param name="ship">Объект корабля</param>
         /// <returns>Цвет типа Color.</returns>
-        public Color GetColorByFlagColor(object ship)
+        private Color GetColorByFlagColor(string flagColor)
         {
-            switch (((Ship)ship).FlagColor)
+            switch (flagColor)
             {
-                case FlagColor.Red: return Color.Red;
-                case FlagColor.Green: return Color.Green;
-                case FlagColor.Blue: return Color.Blue;
-                case FlagColor.Yellow: return Color.DarkOrange;
-                case FlagColor.Pink: return Color.Magenta;
+                case "Red": return Color.Red;
+                case "Green": return Color.Green;
+                case "Blue": return Color.Blue;
+                case "Yellow": return Color.DarkOrange;
+                case "Pink": return Color.Magenta;
 
                 default: return Color.Black;
             }
+        }
+
+
+
+        public void InitializeGameFormFirstTime()
+        {
+            InitializeListViewMain();
+            ResetGame();
         }
     }
 }
